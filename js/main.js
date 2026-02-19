@@ -239,6 +239,208 @@ function initBackToTop() {
 }
 
 // ==========================================
+// EMERGENCY TOP BAR
+// ==========================================
+function initEmergencyBar() {
+  const bar = document.getElementById('emergencyBar');
+  const closeBtn = document.getElementById('emergencyBarClose');
+  if (!bar) return;
+
+  // Check if previously dismissed
+  const dismissed = sessionStorage.getItem('sanlufer-emergency-dismissed');
+  if (dismissed) {
+    bar.classList.add('hidden');
+    return;
+  }
+
+  document.body.classList.add('has-emergency-bar');
+
+  closeBtn.addEventListener('click', () => {
+    bar.classList.add('hidden');
+    document.body.classList.remove('has-emergency-bar');
+    sessionStorage.setItem('sanlufer-emergency-dismissed', '1');
+  });
+}
+
+// ==========================================
+// URGENCY CRIME COUNTER
+// ==========================================
+function initUrgencyCounter() {
+  // Based on Colombian crime statistics: ~590,000 hurtos/year ≈ 67.35/hour ≈ 1.12/minute
+  const counter = document.getElementById('crimeCounter');
+  const counterEN = document.getElementById('crimeCounterEN');
+  if (!counter) return;
+
+  const rate = 1.12; // per minute
+  let count = Math.floor(Math.random() * 3) + 1; // Start with small random number
+
+  function updateCounters(value) {
+    const formatted = value.toLocaleString('es-CO');
+    if (counter) counter.textContent = formatted;
+    if (counterEN) counterEN.textContent = formatted;
+  }
+
+  updateCounters(count);
+
+  // Increment every ~54 seconds (1 per minute on average, with variation)
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        const interval = setInterval(() => {
+          count++;
+          updateCounters(count);
+        }, Math.floor(45000 + Math.random() * 20000)); // 45-65s interval
+
+        // Store interval to clear if needed
+        entry.target._crimeInterval = interval;
+      } else {
+        if (entry.target._crimeInterval) {
+          clearInterval(entry.target._crimeInterval);
+        }
+      }
+    });
+  }, { threshold: 0.3 });
+
+  const section = counter.closest('.urgency-counter');
+  if (section) observer.observe(section);
+}
+
+// ==========================================
+// SECURITY ASSESSMENT QUIZ
+// ==========================================
+function initSecurityQuiz() {
+  const quiz = document.getElementById('securityQuiz');
+  if (!quiz) return;
+
+  const steps = quiz.querySelectorAll('.quiz__step');
+  const progressBar = document.getElementById('quizProgress');
+  const progressText = document.getElementById('quizProgressText');
+  const result = document.getElementById('quizResult');
+  const restartBtn = document.getElementById('quizRestart');
+  const totalSteps = steps.length;
+  let currentStep = 1;
+  let totalScore = 0;
+
+  // Handle option clicks
+  quiz.addEventListener('click', (e) => {
+    const option = e.target.closest('.quiz__option');
+    if (!option) return;
+
+    const score = parseInt(option.dataset.score, 10) || 0;
+    totalScore += score;
+
+    // Hide current step
+    const activeStep = quiz.querySelector('.quiz__step--active');
+    if (activeStep) activeStep.classList.remove('quiz__step--active');
+
+    currentStep++;
+
+    if (currentStep <= totalSteps) {
+      // Show next step
+      const nextStep = quiz.querySelector(`[data-step="${currentStep}"]`);
+      if (nextStep) nextStep.classList.add('quiz__step--active');
+
+      // Update progress
+      const pct = (currentStep / totalSteps) * 100;
+      progressBar.style.width = pct + '%';
+      progressText.textContent = currentStep + ' / ' + totalSteps;
+    } else {
+      // Show results
+      showQuizResult();
+    }
+  });
+
+  function showQuizResult() {
+    // Hide progress
+    quiz.querySelector('.quiz__progress').style.display = 'none';
+
+    // Calculate score (0-100)
+    // Max possible: 5 + 8 + 3 + 6 = 22, Min: 0 + 0 + 1 + 0 = 1
+    const maxScore = 22;
+    const normalizedScore = Math.min(Math.round((totalScore / maxScore) * 100), 100);
+
+    result.classList.add('active');
+
+    // Animate gauge
+    const gaugeFill = quiz.querySelector('.quiz__gauge-fill');
+    const totalLength = 326.7;
+    const dashOffset = totalLength - (totalLength * normalizedScore / 100);
+    setTimeout(() => {
+      gaugeFill.style.strokeDashoffset = dashOffset;
+    }, 100);
+
+    // Animate number
+    const scoreNum = document.getElementById('quizScoreNumber');
+    animateScoreNumber(scoreNum, normalizedScore);
+
+    // Set result text
+    const lang = document.documentElement.getAttribute('data-lang') || 'es';
+    const titleEl = document.getElementById('quizResultTitle');
+    const descEl = document.getElementById('quizResultDesc');
+
+    if (normalizedScore <= 25) {
+      titleEl.textContent = lang === 'es' ? 'Nivel Crítico — Vulnerable' : 'Critical Level — Vulnerable';
+      titleEl.style.color = '#EF4444';
+      descEl.textContent = lang === 'es'
+        ? 'Su propiedad tiene un nivel de riesgo muy alto. Necesita un sistema de seguridad profesional urgentemente. Le recomendamos una evaluación gratuita inmediata.'
+        : 'Your property has a very high risk level. You urgently need a professional security system. We recommend an immediate free assessment.';
+    } else if (normalizedScore <= 50) {
+      titleEl.textContent = lang === 'es' ? 'Nivel Bajo — En Riesgo' : 'Low Level — At Risk';
+      titleEl.style.color = '#F97316';
+      descEl.textContent = lang === 'es'
+        ? 'Su seguridad actual es insuficiente para las amenazas modernas. Hay brechas importantes que un sistema profesional puede cubrir. Solicite una evaluación gratuita.'
+        : 'Your current security is insufficient for modern threats. There are significant gaps that a professional system can cover. Request a free assessment.';
+    } else if (normalizedScore <= 75) {
+      titleEl.textContent = lang === 'es' ? 'Nivel Medio — Mejorable' : 'Medium Level — Improvable';
+      titleEl.style.color = '#FBBF24';
+      descEl.textContent = lang === 'es'
+        ? 'Tiene una base de seguridad, pero hay oportunidades de mejora con tecnología más avanzada como IA, control de acceso biométrico y monitoreo remoto.'
+        : 'You have a security foundation, but there are improvement opportunities with more advanced technology like AI, biometric access control and remote monitoring.';
+    } else {
+      titleEl.textContent = lang === 'es' ? 'Nivel Alto — Bien Protegido' : 'High Level — Well Protected';
+      titleEl.style.color = '#22D3EE';
+      descEl.textContent = lang === 'es'
+        ? 'Su propiedad tiene un buen nivel de seguridad. Aún así, podemos optimizar su sistema con las últimas tecnologías en IA y automatización. Consulte nuestras soluciones premium.'
+        : 'Your property has a good security level. Even so, we can optimize your system with the latest AI and automation technologies. Check out our premium solutions.';
+    }
+  }
+
+  function animateScoreNumber(el, target) {
+    const duration = 1500;
+    const start = performance.now();
+    function update(now) {
+      const elapsed = now - start;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      el.textContent = Math.round(target * eased);
+      if (progress < 1) requestAnimationFrame(update);
+    }
+    requestAnimationFrame(update);
+  }
+
+  // Restart
+  if (restartBtn) {
+    restartBtn.addEventListener('click', () => {
+      totalScore = 0;
+      currentStep = 1;
+      result.classList.remove('active');
+
+      // Reset gauge
+      const gaugeFill = quiz.querySelector('.quiz__gauge-fill');
+      gaugeFill.style.strokeDashoffset = '326.7';
+
+      // Show progress and first step
+      quiz.querySelector('.quiz__progress').style.display = '';
+      progressBar.style.width = '25%';
+      progressText.textContent = '1 / 4';
+
+      steps.forEach((s) => s.classList.remove('quiz__step--active'));
+      steps[0].classList.add('quiz__step--active');
+    });
+  }
+}
+
+// ==========================================
 // INITIALIZE EVERYTHING
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -249,4 +451,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initSmoothScroll();
   initContactForm();
   initBackToTop();
+  initEmergencyBar();
+  initUrgencyCounter();
+  initSecurityQuiz();
 });

@@ -118,21 +118,29 @@ function initTypingEffect() {
   const wordsES = [
     'para su Empresa',
     'con Videovigilancia IA',
-    'en Armenia y Quindío',
+    'en toda Colombia',
+    'en Bogotá y Medellín',
+    'en Cali y Armenia',
+    'en Barranquilla y Cartagena',
     'Automatización Total',
     'Cableado Certificado',
     '24/7 Soporte Técnico',
-    'en el Eje Cafetero',
+    'en Bucaramanga y Pasto',
+    'en Pereira y el Eje Cafetero',
   ];
 
   const wordsEN = [
     'for your Business',
     'with AI Surveillance',
-    'in Armenia & Quindío',
+    'across all Colombia',
+    'in Bogotá & Medellín',
+    'in Cali & Armenia',
+    'in Barranquilla & Cartagena',
     'Total Automation',
     'Certified Cabling',
     '24/7 Tech Support',
-    'in the Coffee Region',
+    'in Bucaramanga & Pasto',
+    'in Pereira & the Coffee Region',
   ];
 
   let words = lang === 'en' ? wordsEN : wordsES;
