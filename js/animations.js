@@ -118,17 +118,21 @@ function initTypingEffect() {
   const wordsES = [
     'para su Empresa',
     'con Videovigilancia IA',
+    'en Armenia y Quindío',
     'Automatización Total',
     'Cableado Certificado',
     '24/7 Soporte Técnico',
+    'en el Eje Cafetero',
   ];
 
   const wordsEN = [
     'for your Business',
     'with AI Surveillance',
+    'in Armenia & Quindío',
     'Total Automation',
     'Certified Cabling',
     '24/7 Tech Support',
+    'in the Coffee Region',
   ];
 
   let words = lang === 'en' ? wordsEN : wordsES;
