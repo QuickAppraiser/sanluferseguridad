@@ -1,74 +1,81 @@
 /**
- * SecurityGrid - Security-Themed Canvas Animation
- * =================================================
- * A premium hexagonal grid animation with shield nodes, data flow particles,
- * radar sweep, and mouse interaction. Designed for a professional security
- * company website hero section.
+ * SecurityCanvas - Security-Themed Surveillance Canvas Animation
+ * ===============================================================
+ * A visually impactful canvas animation designed for a professional security
+ * company website hero section, with clearly recognizable security imagery.
  *
  * Layers:
- *   1. Hexagonal honeycomb grid with pulsing highlights
- *   2. Shield/badge nodes at grid intersections
- *   3. Data packets flowing along grid edges
- *   4. Radar sweep arc rotating from center
- *   5. Mouse proximity interaction (desktop only)
+ *   1. Surveillance grid with pulsing crosshair marks
+ *   2. Horizontal scanning line (security scanner effect)
+ *   3. Floating security icons (cameras, locks, shields, eyes)
+ *   4. Connection network between nearby icons
+ *   5. Data particles traveling along connection lines
+ *   6. Corner targeting brackets (camera viewfinder style)
+ *
+ * Mouse interaction (desktop): icons brighten near cursor, radial glow
  *
  * Performance:
- *   - requestAnimationFrame loop with delta-time
- *   - Pauses when tab is hidden (Visibility API)
- *   - Spatial hash grid for mouse proximity lookups
- *   - Tiered complexity for desktop / mobile / minimal
- *   - Respects prefers-reduced-motion
+ *   - 3 tiers: desktop (full), mobile (reduced), minimal (static-ish)
+ *   - requestAnimationFrame with delta-time
+ *   - Visibility API pause
+ *   - prefers-reduced-motion: single static frame
+ *   - DPR-aware (capped at 2)
+ *   - Debounced resize
  */
 
-class SecurityGrid {
+class SecurityCanvas {
 
-  // ─── Color Constants ───────────────────────────────────────────────
+  // ─── Constants ────────────────────────────────────────────────────
 
-  static CYAN        = '#22D3EE';
-  static TEAL        = '#06B6D4';
-  static CYAN_RGB    = '34, 211, 238';
-  static TEAL_RGB    = '6, 182, 212';
+  static CYAN     = '#22D3EE';
+  static CYAN_RGB = '34, 211, 238';
 
-  // ─── Configuration per device tier ─────────────────────────────────
+  // ─── Tier Configurations ──────────────────────────────────────────
 
   static CONFIG = {
     desktop: {
-      hexSize:          60,
-      shieldCount:      22,
-      packetCount:      13,
-      radarEnabled:     true,
+      gridSpacing:      60,
+      crosshairCount:   18,
+      iconCount:        12,
+      particleCount:    15,
+      bracketCount:     4,
       mouseEnabled:     true,
-      pulsingHexRatio:  0.08,
+      scanLineEnabled:  true,
     },
     mobile: {
-      hexSize:          40,
-      shieldCount:      12,
-      packetCount:      7,
-      radarEnabled:     false,
+      gridSpacing:      80,
+      crosshairCount:   10,
+      iconCount:        8,
+      particleCount:    8,
+      bracketCount:     3,
       mouseEnabled:     false,
-      pulsingHexRatio:  0.05,
+      scanLineEnabled:  true,
     },
     minimal: {
-      hexSize:          40,
-      shieldCount:      5,
-      packetCount:      0,
-      radarEnabled:     false,
+      gridSpacing:      80,
+      crosshairCount:   6,
+      iconCount:        5,
+      particleCount:    0,
+      bracketCount:     2,
       mouseEnabled:     false,
-      pulsingHexRatio:  0.03,
+      scanLineEnabled:  false,
     },
   };
+
+  // Icon type enumeration
+  static ICON_CAMERA = 0;
+  static ICON_LOCK   = 1;
+  static ICON_SHIELD = 2;
+  static ICON_EYE    = 3;
 
   // ═══════════════════════════════════════════════════════════════════
   // CONSTRUCTOR
   // ═══════════════════════════════════════════════════════════════════
 
-  /**
-   * @param {string} canvasId - The id attribute of the <canvas> element.
-   */
   constructor(canvasId) {
     this.canvas = document.getElementById(canvasId);
     if (!this.canvas) {
-      console.warn(`SecurityGrid: canvas "#${canvasId}" not found.`);
+      console.warn(`SecurityCanvas: canvas "#${canvasId}" not found.`);
       return;
     }
     this.ctx = this.canvas.getContext('2d');
@@ -82,34 +89,29 @@ class SecurityGrid {
     // Mouse state
     this.mouse = { x: -9999, y: -9999, active: false };
 
-    // Device pixel ratio (capped at 2 for performance)
+    // DPR capped at 2
     this.dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-    // Accessibility: reduced motion preference
+    // Accessibility
     this.prefersReducedMotion = window.matchMedia(
       '(prefers-reduced-motion: reduce)'
     ).matches;
 
-    // Detect device tier and load matching config
+    // Detect tier
     this.tier   = this._detectTier();
-    this.config = SecurityGrid.CONFIG[this.tier];
+    this.config = SecurityCanvas.CONFIG[this.tier];
 
-    // Data structures (populated by _buildGrid / _populateEntities)
-    this.hexCenters    = [];   // { x, y, col, row }
-    this.hexEdges      = [];   // { x1, y1, x2, y2 }
-    this.pulsingHexes  = [];   // { index, phase, speed }
-    this.shieldNodes   = [];   // { x, y, phase, speed, rotation, rotationSpeed, size }
-    this.dataPackets   = [];   // { edgeIndex, progress, speed, trail[], direction }
-    this.radarAngle    = 0;
+    // Data structures
+    this.crosshairs     = [];
+    this.icons          = [];
+    this.connections     = [];
+    this.particles      = [];
+    this.brackets       = [];
+    this.scanLineY      = 0;
 
-    // Spatial hash for mouse interaction
-    this.spatialCellSize = 0;
-    this.spatialGrid     = {};
-
-    // Build everything and start
+    // Setup and start
     this._setupCanvas();
-    this._buildGrid();
-    this._populateEntities();
+    this._buildScene();
     this._bindEvents();
 
     if (this.prefersReducedMotion) {
@@ -120,13 +122,9 @@ class SecurityGrid {
   }
 
   // ═══════════════════════════════════════════════════════════════════
-  // SETUP HELPERS
+  // SETUP
   // ═══════════════════════════════════════════════════════════════════
 
-  /**
-   * Determine which complexity tier to use based on viewport width.
-   * @returns {'desktop'|'mobile'|'minimal'}
-   */
   _detectTier() {
     const w = window.innerWidth;
     if (w < 480)  return 'minimal';
@@ -134,9 +132,6 @@ class SecurityGrid {
     return 'desktop';
   }
 
-  /**
-   * Size the canvas to fill its parent container, accounting for DPR.
-   */
   _setupCanvas() {
     const parent = this.canvas.parentElement;
     const rect   = parent.getBoundingClientRect();
@@ -149,193 +144,142 @@ class SecurityGrid {
     this.canvas.style.width  = `${this.width}px`;
     this.canvas.style.height = `${this.height}px`;
 
-    // Reset transform then apply DPR scaling so we draw in CSS-pixel coords
     this.ctx.setTransform(this.dpr, 0, 0, this.dpr, 0, 0);
   }
 
   // ═══════════════════════════════════════════════════════════════════
-  // HEXAGONAL GRID CONSTRUCTION
+  // SCENE CONSTRUCTION
   // ═══════════════════════════════════════════════════════════════════
 
-  /**
-   * Compute all hex centers and edges for a flat-top honeycomb grid
-   * covering the full canvas with some overflow padding.
-   */
-  _buildGrid() {
-    const size = this.config.hexSize;
+  _buildScene() {
+    this._buildCrosshairs();
+    this._buildIcons();
+    this._buildConnections();
+    this._buildParticles();
+    this._buildBrackets();
+    this.scanLineY = 0;
+  }
 
-    // Flat-top hex geometry
-    const hexW       = size * 2;
-    const hexH       = Math.sqrt(3) * size;
-    const colSpacing = hexW * 0.75;
-    const rowSpacing = hexH;
+  // ─── Crosshairs at grid intersections ─────────────────────────────
 
-    this.hexCenters = [];
-    this.hexEdges   = [];
-    const edgeSet   = new Set();
+  _buildCrosshairs() {
+    this.crosshairs = [];
+    const spacing = this.config.gridSpacing;
+    const cols    = Math.ceil(this.width  / spacing) + 1;
+    const rows    = Math.ceil(this.height / spacing) + 1;
 
-    // Extend beyond visible bounds so hexes aren't cut off
-    const pad  = size * 2;
-    const cols = Math.ceil((this.width  + pad * 2) / colSpacing) + 1;
-    const rows = Math.ceil((this.height + pad * 2) / rowSpacing) + 1;
-    const ox   = -pad;
-    const oy   = -pad;
-
-    for (let col = 0; col < cols; col++) {
-      for (let row = 0; row < rows; row++) {
-        const cx = ox + col * colSpacing;
-        const cy = oy + row * rowSpacing + (col % 2 === 1 ? hexH / 2 : 0);
-
-        this.hexCenters.push({ x: cx, y: cy, col, row });
-
-        // 6 vertices of a flat-top hex
-        const verts = [];
-        for (let i = 0; i < 6; i++) {
-          const a = (Math.PI / 180) * (60 * i);
-          verts.push({ x: cx + size * Math.cos(a), y: cy + size * Math.sin(a) });
-        }
-
-        // Register each edge (deduplicated by snapped endpoint key)
-        for (let i = 0; i < 6; i++) {
-          const a = verts[i];
-          const b = verts[(i + 1) % 6];
-          const key = this._edgeKey(a, b);
-          if (!edgeSet.has(key)) {
-            edgeSet.add(key);
-            this.hexEdges.push({ x1: a.x, y1: a.y, x2: b.x, y2: b.y });
-          }
-        }
+    // Collect all intersection positions
+    const all = [];
+    for (let c = 0; c <= cols; c++) {
+      for (let r = 0; r <= rows; r++) {
+        all.push({ x: c * spacing, y: r * spacing });
       }
     }
 
-    // Choose a subset of hexes whose outlines will gently pulse
-    const pulseCount = Math.floor(this.hexCenters.length * this.config.pulsingHexRatio);
-    this.pulsingHexes = this._randomSample(this.hexCenters.length, pulseCount).map(i => ({
-      index: i,
-      phase: Math.random() * Math.PI * 2,
-      speed: 0.3 + Math.random() * 0.5,
-    }));
-
-    // Build spatial hash for mouse proximity queries
-    this._buildSpatialGrid();
-  }
-
-  /**
-   * Create a canonical string key for an edge (order-independent)
-   * so shared edges between adjacent hexes are stored only once.
-   */
-  _edgeKey(a, b) {
-    const ax = Math.round(a.x);
-    const ay = Math.round(a.y);
-    const bx = Math.round(b.x);
-    const by = Math.round(b.y);
-    if (ax < bx || (ax === bx && ay < by)) return `${ax},${ay}-${bx},${by}`;
-    return `${bx},${by}-${ax},${ay}`;
-  }
-
-  /**
-   * Build a hash map of hex-center indices bucketed by spatial cell
-   * for O(1) neighbourhood lookups during mouse interaction.
-   */
-  _buildSpatialGrid() {
-    this.spatialCellSize = this.config.hexSize * 2.5;
-    this.spatialGrid = {};
-    this.hexCenters.forEach((hex, i) => {
-      const key = this._spatialKey(hex.x, hex.y);
-      if (!this.spatialGrid[key]) this.spatialGrid[key] = [];
-      this.spatialGrid[key].push(i);
-    });
-  }
-
-  /** Spatial hash key for a world-space coordinate. */
-  _spatialKey(x, y) {
-    const cs = this.spatialCellSize;
-    return `${Math.floor(x / cs)},${Math.floor(y / cs)}`;
-  }
-
-  /**
-   * Return all hex-center indices within a certain radius of (x, y),
-   * using the spatial hash to avoid scanning every hex.
-   */
-  _getNearbyHexes(x, y, radius) {
-    const cs = this.spatialCellSize;
-    const cr = Math.ceil(radius / cs);
-    const cx = Math.floor(x / cs);
-    const cy = Math.floor(y / cs);
-    const result = [];
-    for (let dx = -cr; dx <= cr; dx++) {
-      for (let dy = -cr; dy <= cr; dy++) {
-        const bucket = this.spatialGrid[`${cx + dx},${cy + dy}`];
-        if (bucket) {
-          for (let i = 0; i < bucket.length; i++) result.push(bucket[i]);
-        }
-      }
-    }
-    return result;
-  }
-
-  // ═══════════════════════════════════════════════════════════════════
-  // ENTITY POPULATION (shields + data packets)
-  // ═══════════════════════════════════════════════════════════════════
-
-  _populateEntities() {
-    this._createShieldNodes();
-    this._createDataPackets();
-  }
-
-  /**
-   * Place shield/badge nodes at randomly chosen hex centres
-   * that fall within the visible canvas area.
-   */
-  _createShieldNodes() {
-    this.shieldNodes = [];
-    const count  = this.config.shieldCount;
-    const margin = this.config.hexSize;
-
-    // Collect indices of hex centres that are on-screen
-    const visible = [];
-    for (let i = 0; i < this.hexCenters.length; i++) {
-      const h = this.hexCenters[i];
-      if (h.x >= -margin && h.x <= this.width + margin &&
-          h.y >= -margin && h.y <= this.height + margin) {
-        visible.push(i);
-      }
-    }
-
-    const chosen = this._randomSample(visible.length, Math.min(count, visible.length));
-    for (const idx of chosen) {
-      const hex = this.hexCenters[visible[idx]];
-      this.shieldNodes.push({
-        x:             hex.x,
-        y:             hex.y,
-        phase:         Math.random() * Math.PI * 2,
-        speed:         0.4 + Math.random() * 0.6,
-        rotationSpeed: (Math.random() - 0.5) * 0.15,   // some CW, some CCW
-        rotation:      Math.random() * Math.PI * 2,
-        size:          10 + Math.random() * 4,
+    // Pick a random subset to display crosshair marks
+    const count   = Math.min(this.config.crosshairCount, all.length);
+    const indices = this._randomSample(all.length, count);
+    for (const i of indices) {
+      this.crosshairs.push({
+        x:     all[i].x,
+        y:     all[i].y,
+        phase: Math.random() * Math.PI * 2,
+        speed: 0.5 + Math.random() * 0.8,
       });
     }
   }
 
-  /**
-   * Create data-flow packets that travel along hex-grid edges.
-   */
-  _createDataPackets() {
-    this.dataPackets = [];
-    for (let i = 0; i < this.config.packetCount; i++) {
-      this.dataPackets.push(this._newDataPacket());
+  // ─── Floating Security Icons ──────────────────────────────────────
+
+  _buildIcons() {
+    this.icons = [];
+    const count  = this.config.iconCount;
+    const margin = 40;
+
+    for (let i = 0; i < count; i++) {
+      this.icons.push({
+        x:        margin + Math.random() * (this.width  - margin * 2),
+        y:        margin + Math.random() * (this.height - margin * 2),
+        vx:       (Math.random() - 0.5) * 0.4,   // -0.2 to 0.2 px/frame at 60fps
+        vy:       (Math.random() - 0.5) * 0.4,
+        type:     Math.floor(Math.random() * 4),
+        size:     20 + Math.random() * 10,
+        rotation: Math.random() * Math.PI * 2,
+        rotSpeed: (Math.random() - 0.5) * 0.3,
+        opacity:  0.08 + Math.random() * 0.07,    // base opacity 0.08 - 0.15
+        scanBoost: 0,                               // extra opacity from scan line
+      });
     }
   }
 
-  /** Spawn a single data packet on a random edge. */
-  _newDataPacket() {
+  // ─── Connection Network ───────────────────────────────────────────
+
+  _buildConnections() {
+    this.connections = [];
+    const maxDist = 200;
+
+    for (let i = 0; i < this.icons.length; i++) {
+      for (let j = i + 1; j < this.icons.length; j++) {
+        const d = this._dist(
+          this.icons[i].x, this.icons[i].y,
+          this.icons[j].x, this.icons[j].y
+        );
+        if (d < maxDist) {
+          this.connections.push({ from: i, to: j });
+        }
+      }
+    }
+  }
+
+  // ─── Data Particles ───────────────────────────────────────────────
+
+  _buildParticles() {
+    this.particles = [];
+    if (this.connections.length === 0) return;
+
+    const count = Math.min(this.config.particleCount, this.connections.length * 3);
+    for (let i = 0; i < count; i++) {
+      this.particles.push(this._newParticle());
+    }
+  }
+
+  _newParticle() {
     return {
-      edgeIndex:   Math.floor(Math.random() * this.hexEdges.length),
-      progress:    Math.random(),
-      speed:       0.15 + Math.random() * 0.25,
-      trail:       [],
-      trailLength: 6 + Math.floor(Math.random() * 6),
-      direction:   Math.random() < 0.5 ? 1 : -1,
+      connIndex: Math.floor(Math.random() * this.connections.length),
+      progress:  Math.random(),
+      speed:     0.003 + Math.random() * 0.005,  // normalized speed per frame
+      direction: Math.random() < 0.5 ? 1 : -1,
+      trail:     [],
+      trailLen:  5 + Math.floor(Math.random() * 4),
+    };
+  }
+
+  // ─── Corner Brackets ──────────────────────────────────────────────
+
+  _buildBrackets() {
+    this.brackets = [];
+    const count  = this.config.bracketCount;
+    const margin = 80;
+
+    for (let i = 0; i < count; i++) {
+      this.brackets.push(this._newBracket(margin));
+    }
+  }
+
+  _newBracket(margin) {
+    const bw = 50 + Math.random() * 40;
+    const bh = 35 + Math.random() * 30;
+    return {
+      x:          margin + Math.random() * (this.width  - margin * 2),
+      y:          margin + Math.random() * (this.height - margin * 2),
+      w:          bw,
+      h:          bh,
+      opacity:    0,
+      fadeDir:    1,               // 1 = fading in, -1 = fading out
+      fadeSpeed:  0.12 + Math.random() * 0.1,
+      holdTime:   0,               // seconds remaining at full opacity
+      lifetime:   5 + Math.random() * 3,   // total cycle seconds
+      age:        0,
     };
   }
 
@@ -348,11 +292,11 @@ class SecurityGrid {
     this._resizeTimer = null;
     this._boundResize = () => {
       clearTimeout(this._resizeTimer);
-      this._resizeTimer = setTimeout(() => this._onResize(), 200);
+      this._resizeTimer = setTimeout(() => this._onResize(), 250);
     };
     window.addEventListener('resize', this._boundResize);
 
-    // Visibility API: pause when hidden, resume when visible
+    // Visibility API
     this._boundVisibility = () => {
       if (document.hidden) {
         this.isVisible = false;
@@ -367,7 +311,7 @@ class SecurityGrid {
     };
     document.addEventListener('visibilitychange', this._boundVisibility);
 
-    // Mouse interaction (desktop only)
+    // Mouse (desktop only)
     if (this.config.mouseEnabled) {
       this._boundMouseMove = (e) => {
         const rect = this.canvas.getBoundingClientRect();
@@ -384,7 +328,7 @@ class SecurityGrid {
       this.canvas.addEventListener('mouseleave', this._boundMouseLeave);
     }
 
-    // Listen for changes to prefers-reduced-motion
+    // Reduced motion changes
     this._motionMQ = window.matchMedia('(prefers-reduced-motion: reduce)');
     this._boundMotion = (e) => {
       this.prefersReducedMotion = e.matches;
@@ -398,17 +342,13 @@ class SecurityGrid {
     this._motionMQ.addEventListener('change', this._boundMotion);
   }
 
-  /**
-   * Full rebuild on resize: re-detect tier, re-size canvas, rebuild geometry.
-   */
   _onResize() {
     this.tier   = this._detectTier();
-    this.config = SecurityGrid.CONFIG[this.tier];
+    this.config = SecurityCanvas.CONFIG[this.tier];
     this.dpr    = Math.min(window.devicePixelRatio || 1, 2);
 
     this._setupCanvas();
-    this._buildGrid();
-    this._populateEntities();
+    this._buildScene();
 
     if (this.prefersReducedMotion) {
       this._drawStaticFrame();
@@ -420,13 +360,12 @@ class SecurityGrid {
   // ═══════════════════════════════════════════════════════════════════
 
   _startLoop() {
-    if (this.animationId) return;           // already running
+    if (this.animationId) return;
     this.lastTime = 0;
 
     const tick = (timestamp) => {
       if (!this.isVisible) return;
 
-      // Delta time in seconds, capped at 100 ms to avoid huge jumps
       const dt = this.lastTime
         ? Math.min((timestamp - this.lastTime) / 1000, 0.1)
         : 0.016;
@@ -450,404 +389,639 @@ class SecurityGrid {
   }
 
   // ═══════════════════════════════════════════════════════════════════
-  // UPDATE (per-frame state changes)
+  // UPDATE
   // ═══════════════════════════════════════════════════════════════════
 
   _update(dt) {
-    // --- Shield nodes: advance pulse phase and rotation ---
-    for (const s of this.shieldNodes) {
-      s.phase    += s.speed * dt;
-      s.rotation += s.rotationSpeed * dt;
-    }
-
-    // --- Pulsing hex highlights ---
-    for (const ph of this.pulsingHexes) {
-      ph.phase += ph.speed * dt;
-    }
-
-    // --- Data packets: move along edges ---
-    for (const pkt of this.dataPackets) {
-      pkt.progress += pkt.speed * dt * pkt.direction;
-
-      // Record position into trail buffer
-      const edge = this.hexEdges[pkt.edgeIndex];
-      if (edge) {
-        const t  = Math.max(0, Math.min(1, pkt.progress));
-        const px = edge.x1 + (edge.x2 - edge.x1) * t;
-        const py = edge.y1 + (edge.y2 - edge.y1) * t;
-        pkt.trail.push({ x: px, y: py });
-        if (pkt.trail.length > pkt.trailLength) pkt.trail.shift();
-      }
-
-      // Redirect when an endpoint is reached
-      if (pkt.progress >= 1 || pkt.progress <= 0) {
-        this._redirectPacket(pkt);
+    // --- Scanning line ---
+    if (this.config.scanLineEnabled) {
+      // ~8 seconds to traverse full height
+      const scanSpeed = this.height / 8;
+      this.scanLineY += scanSpeed * dt;
+      if (this.scanLineY > this.height + 60) {
+        this.scanLineY = -60;
       }
     }
 
-    // --- Radar sweep angle (15 s per revolution) ---
-    if (this.config.radarEnabled) {
-      this.radarAngle += ((Math.PI * 2) / 15) * dt;
-      if (this.radarAngle > Math.PI * 2) this.radarAngle -= Math.PI * 2;
-    }
-  }
-
-  /**
-   * Redirect a data packet onto a connected edge when it reaches
-   * one end of its current edge.
-   */
-  _redirectPacket(pkt) {
-    const edge = this.hexEdges[pkt.edgeIndex];
-    if (!edge) {
-      pkt.edgeIndex = Math.floor(Math.random() * this.hexEdges.length);
-      pkt.progress  = 0;
-      pkt.direction = 1;
-      return;
+    // --- Crosshair pulse phases ---
+    for (const ch of this.crosshairs) {
+      ch.phase += ch.speed * dt;
     }
 
-    // Which endpoint was reached?
-    const endX = pkt.progress >= 1 ? edge.x2 : edge.x1;
-    const endY = pkt.progress >= 1 ? edge.y2 : edge.y1;
+    // --- Floating icons: drift and rotate ---
+    for (const icon of this.icons) {
+      icon.x += icon.vx * dt * 60;
+      icon.y += icon.vy * dt * 60;
+      icon.rotation += icon.rotSpeed * dt;
 
-    // Find edges sharing that endpoint (within rounding tolerance)
-    const tol = 2;
-    const candidates = [];
-    for (let i = 0; i < this.hexEdges.length; i++) {
-      if (i === pkt.edgeIndex) continue;
-      const e = this.hexEdges[i];
-      const matchA = Math.abs(e.x1 - endX) < tol && Math.abs(e.y1 - endY) < tol;
-      const matchB = Math.abs(e.x2 - endX) < tol && Math.abs(e.y2 - endY) < tol;
-      if (matchA || matchB) candidates.push({ index: i, startsAtA: matchA });
+      // Wrap around edges with margin
+      const m = 40;
+      if (icon.x < -m)              icon.x = this.width + m;
+      if (icon.x > this.width + m)  icon.x = -m;
+      if (icon.y < -m)              icon.y = this.height + m;
+      if (icon.y > this.height + m) icon.y = -m;
+
+      // Scan line proximity boost: brighten when scan line is near
+      if (this.config.scanLineEnabled) {
+        const distToScan = Math.abs(icon.y - this.scanLineY);
+        if (distToScan < 40) {
+          icon.scanBoost = Math.min(icon.scanBoost + dt * 3, 0.2);
+        } else {
+          icon.scanBoost = Math.max(icon.scanBoost - dt * 1.5, 0);
+        }
+      }
     }
 
-    if (candidates.length > 0) {
-      const pick = candidates[Math.floor(Math.random() * candidates.length)];
-      pkt.edgeIndex = pick.index;
-      // Start from whichever end of the new edge is the shared point
-      if (pick.startsAtA) {
-        pkt.progress  = 0;
-        pkt.direction = 1;
+    // --- Rebuild connections dynamically (icons move) ---
+    this._buildConnections();
+
+    // --- Data particles ---
+    for (const p of this.particles) {
+      // If the connection no longer exists, reassign
+      if (p.connIndex >= this.connections.length) {
+        if (this.connections.length > 0) {
+          p.connIndex = Math.floor(Math.random() * this.connections.length);
+          p.progress  = Math.random();
+        }
+        continue;
+      }
+
+      p.progress += p.speed * p.direction * dt * 60;
+
+      // Record trail position
+      const conn = this.connections[p.connIndex];
+      if (conn) {
+        const a = this.icons[conn.from];
+        const b = this.icons[conn.to];
+        const t = Math.max(0, Math.min(1, p.progress));
+        const px = a.x + (b.x - a.x) * t;
+        const py = a.y + (b.y - a.y) * t;
+        p.trail.push({ x: px, y: py });
+        if (p.trail.length > p.trailLen) p.trail.shift();
+      }
+
+      // Bounce or reassign at endpoints
+      if (p.progress >= 1 || p.progress <= 0) {
+        p.progress = Math.max(0, Math.min(1, p.progress));
+        // Pick a new random connection
+        if (this.connections.length > 0) {
+          p.connIndex = Math.floor(Math.random() * this.connections.length);
+          p.progress  = p.direction > 0 ? 0 : 1;
+          p.trail     = [];
+        }
+      }
+    }
+
+    // --- Corner brackets lifecycle ---
+    for (let i = 0; i < this.brackets.length; i++) {
+      const br = this.brackets[i];
+      br.age += dt;
+
+      if (br.fadeDir === 1) {
+        // Fading in
+        br.opacity += br.fadeSpeed * dt;
+        if (br.opacity >= 0.2) {
+          br.opacity = 0.2;
+          br.holdTime += dt;
+          // Hold for 2-3 seconds then start fading out
+          if (br.holdTime > 2.5) {
+            br.fadeDir = -1;
+          }
+        }
       } else {
-        pkt.progress  = 1;
-        pkt.direction = -1;
+        // Fading out
+        br.opacity -= br.fadeSpeed * dt;
+        if (br.opacity <= 0) {
+          br.opacity = 0;
+          // If the bracket has lived its full lifetime, respawn at new position
+          if (br.age >= br.lifetime) {
+            this.brackets[i] = this._newBracket(80);
+          } else {
+            // Reset to fade in again at same position
+            br.fadeDir  = 1;
+            br.holdTime = 0;
+          }
+        }
       }
-    } else {
-      // No neighbour found (shouldn't happen) -- respawn randomly
-      pkt.edgeIndex = Math.floor(Math.random() * this.hexEdges.length);
-      pkt.progress  = 0;
-      pkt.direction = 1;
-      pkt.trail     = [];
     }
   }
 
   // ═══════════════════════════════════════════════════════════════════
-  // DRAW (composites all layers each frame)
+  // DRAW (composites all layers)
   // ═══════════════════════════════════════════════════════════════════
 
   _draw() {
     const ctx = this.ctx;
     ctx.clearRect(0, 0, this.width, this.height);
 
-    // Layer 1 - hex grid
-    this._drawHexGrid(ctx);
+    this._drawGrid(ctx);
+    this._drawCrosshairs(ctx);
 
-    // Layer 4 - radar sweep (behind nodes for depth)
-    if (this.config.radarEnabled) {
-      this._drawRadarSweep(ctx);
+    if (this.config.scanLineEnabled) {
+      this._drawScanLine(ctx);
     }
 
-    // Layer 5 - mouse interaction highlights
+    this._drawConnectionNetwork(ctx);
+    this._drawDataParticles(ctx);
+    this._drawIcons(ctx);
+    this._drawBrackets(ctx);
+
     if (this.config.mouseEnabled && this.mouse.active) {
       this._drawMouseInteraction(ctx);
     }
-
-    // Layer 3 - data packets
-    this._drawDataPackets(ctx);
-
-    // Layer 2 - shield nodes (on top)
-    this._drawShieldNodes(ctx);
   }
 
   /**
-   * Draw a non-animated static frame for prefers-reduced-motion users.
+   * Static frame for prefers-reduced-motion users.
    */
   _drawStaticFrame() {
     const ctx = this.ctx;
     ctx.clearRect(0, 0, this.width, this.height);
 
-    // Static hex grid
-    this._drawHexGrid(ctx, true);
+    this._drawGrid(ctx);
 
-    // Static shields at default opacity
-    for (const s of this.shieldNodes) {
-      this._drawShieldShape(ctx, s.x, s.y, s.size, 0, 0.12);
+    // Draw a few crosshairs statically
+    for (const ch of this.crosshairs) {
+      this._drawCrosshairMark(ctx, ch.x, ch.y, 0.05);
+    }
+
+    // Draw icons at base opacity
+    for (const icon of this.icons) {
+      this._drawIconShape(ctx, icon, icon.opacity);
+    }
+
+    // Draw brackets at fixed opacity
+    for (const br of this.brackets) {
+      this._drawBracketShape(ctx, br.x, br.y, br.w, br.h, 0.1);
     }
   }
 
-  // ─── Layer 1: Hexagonal Grid ───────────────────────────────────────
+  // ─── Layer 1: Surveillance Grid ───────────────────────────────────
 
-  /**
-   * @param {CanvasRenderingContext2D} ctx
-   * @param {boolean} isStatic - true when drawing the reduced-motion frame
-   */
-  _drawHexGrid(ctx, isStatic = false) {
-    const rgb = SecurityGrid.CYAN_RGB;
+  _drawGrid(ctx) {
+    const rgb     = SecurityCanvas.CYAN_RGB;
+    const spacing = this.config.gridSpacing;
 
-    // Batch-draw all edges in a single path for speed
     ctx.beginPath();
     ctx.strokeStyle = `rgba(${rgb}, 0.04)`;
     ctx.lineWidth   = 0.5;
-    for (const e of this.hexEdges) {
-      ctx.moveTo(e.x1, e.y1);
-      ctx.lineTo(e.x2, e.y2);
+
+    // Vertical lines
+    const cols = Math.ceil(this.width / spacing) + 1;
+    for (let c = 0; c <= cols; c++) {
+      const x = c * spacing;
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, this.height);
     }
+
+    // Horizontal lines
+    const rows = Math.ceil(this.height / spacing) + 1;
+    for (let r = 0; r <= rows; r++) {
+      const y = r * spacing;
+      ctx.moveTo(0, y);
+      ctx.lineTo(this.width, y);
+    }
+
     ctx.stroke();
+  }
 
-    // Pulsing highlights on selected hexes
-    if (!isStatic) {
-      const size = this.config.hexSize;
-      for (const ph of this.pulsingHexes) {
-        const hex   = this.hexCenters[ph.index];
-        const pulse = 0.03 + Math.sin(ph.phase) * 0.04;
-        if (pulse > 0.02) {
-          ctx.beginPath();
-          ctx.strokeStyle = `rgba(${rgb}, ${pulse.toFixed(3)})`;
-          ctx.lineWidth   = 1;
-          this._traceHexPath(ctx, hex.x, hex.y, size);
-          ctx.stroke();
-        }
-      }
+  // ─── Layer 1b: Crosshair Marks at Grid Intersections ──────────────
+
+  _drawCrosshairs(ctx) {
+    for (const ch of this.crosshairs) {
+      const pulse   = Math.sin(ch.phase) * 0.5 + 0.5;  // 0..1
+      const opacity = 0.04 + pulse * 0.06;              // 0.04 - 0.10
+      this._drawCrosshairMark(ctx, ch.x, ch.y, opacity);
     }
   }
 
-  /**
-   * Trace the outline of a single flat-top hexagon as a sub-path.
-   */
-  _traceHexPath(ctx, cx, cy, size) {
-    for (let i = 0; i < 6; i++) {
-      const a = (Math.PI / 180) * (60 * i);
-      const x = cx + size * Math.cos(a);
-      const y = cy + size * Math.sin(a);
-      if (i === 0) ctx.moveTo(x, y);
-      else         ctx.lineTo(x, y);
-    }
-    ctx.closePath();
-  }
+  _drawCrosshairMark(ctx, x, y, opacity) {
+    const rgb  = SecurityCanvas.CYAN_RGB;
+    const size = 6;
 
-  // ─── Layer 2: Shield Nodes ─────────────────────────────────────────
-
-  _drawShieldNodes(ctx) {
-    for (const s of this.shieldNodes) {
-      // Pulse opacity between 0.08 and 0.25
-      const norm    = Math.sin(s.phase) * 0.5 + 0.5;   // 0..1
-      let   opacity = 0.08 + norm * 0.17;
-
-      // Mouse proximity glow boost
-      if (this.config.mouseEnabled && this.mouse.active) {
-        const d = this._dist(s.x, s.y, this.mouse.x, this.mouse.y);
-        if (d < 150) opacity = Math.min(opacity + (1 - d / 150) * 0.35, 0.65);
-      }
-
-      this._drawShieldShape(ctx, s.x, s.y, s.size, s.rotation, opacity);
-    }
-  }
-
-  /**
-   * Draw a single shield/badge outline.
-   * The shape is a pointed-bottom badge (see reference in header).
-   */
-  _drawShieldShape(ctx, x, y, size, rotation, opacity) {
-    const rgb   = SecurityGrid.CYAN_RGB;
-    const scale = size / 12;
-
-    ctx.save();
-    ctx.translate(x, y);
-    ctx.rotate(rotation);
-    ctx.scale(scale, scale);
-
-    // Shield path
     ctx.beginPath();
-    ctx.moveTo(0, -6);
-    ctx.lineTo(5, -3);
-    ctx.lineTo(5,  2);
-    ctx.lineTo(0,  6);
-    ctx.lineTo(-5, 2);
-    ctx.lineTo(-5, -3);
-    ctx.closePath();
-
-    // Stroke
-    ctx.strokeStyle = `rgba(${rgb}, ${opacity.toFixed(3)})`;
-    ctx.lineWidth   = 1.5 / scale;
-    ctx.stroke();
-
-    // Very subtle interior fill
-    ctx.fillStyle = `rgba(${rgb}, ${(opacity * 0.15).toFixed(4)})`;
-    ctx.fill();
-
-    // Additional bloom when bright
-    if (opacity > 0.2) {
-      ctx.shadowColor = `rgba(${rgb}, ${(opacity * 0.4).toFixed(3)})`;
-      ctx.shadowBlur  = 8 / scale;
-      ctx.strokeStyle = `rgba(${rgb}, ${(opacity * 0.5).toFixed(3)})`;
-      ctx.lineWidth   = 0.8 / scale;
-      ctx.stroke();
-      ctx.shadowBlur = 0;
-    }
-
-    ctx.restore();
-  }
-
-  // ─── Layer 3: Data Packets ─────────────────────────────────────────
-
-  _drawDataPackets(ctx) {
-    const rgb = SecurityGrid.CYAN_RGB;
-
-    for (const pkt of this.dataPackets) {
-      const edge = this.hexEdges[pkt.edgeIndex];
-      if (!edge) continue;
-
-      const t  = Math.max(0, Math.min(1, pkt.progress));
-      const px = edge.x1 + (edge.x2 - edge.x1) * t;
-      const py = edge.y1 + (edge.y2 - edge.y1) * t;
-
-      // Luminous trail
-      if (pkt.trail.length > 1) {
-        for (let i = 0; i < pkt.trail.length - 1; i++) {
-          const frac = i / pkt.trail.length;         // 0 = oldest, ~1 = newest
-          const trailAlpha = frac * 0.3;
-          const trailSize  = 0.6 + frac * 0.8;
-          ctx.beginPath();
-          ctx.arc(pkt.trail[i].x, pkt.trail[i].y, trailSize, 0, Math.PI * 2);
-          ctx.fillStyle = `rgba(${rgb}, ${trailAlpha.toFixed(3)})`;
-          ctx.fill();
-        }
-      }
-
-      // Main dot with glow
-      ctx.save();
-      ctx.shadowColor = `rgba(${rgb}, 0.6)`;
-      ctx.shadowBlur  = 10;
-      ctx.beginPath();
-      ctx.arc(px, py, 2, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${rgb}, 0.5)`;
-      ctx.fill();
-
-      // Brighter inner core
-      ctx.shadowBlur = 4;
-      ctx.beginPath();
-      ctx.arc(px, py, 1, 0, Math.PI * 2);
-      ctx.fillStyle = `rgba(${rgb}, 0.8)`;
-      ctx.fill();
-      ctx.restore();
-    }
-  }
-
-  // ─── Layer 4: Radar Sweep ──────────────────────────────────────────
-
-  _drawRadarSweep(ctx) {
-    const cx     = this.width  / 2;
-    const cy     = this.height / 2;
-    const radius = Math.max(this.width, this.height) * 0.6;
-    const arc    = Math.PI / 4;       // 45-degree cone
-    const rgb    = SecurityGrid.CYAN_RGB;
-
-    ctx.save();
-    ctx.translate(cx, cy);
-    ctx.rotate(this.radarAngle);
-
-    // Render the cone as a fan of thin slices with fading opacity
-    const steps = 24;
-    for (let i = 0; i < steps; i++) {
-      const frac  = i / steps;
-      const a0    = -arc * frac;
-      const a1    = -arc * (frac + 1 / steps);
-      const alpha = 0.06 * (1 - frac);
-
-      ctx.beginPath();
-      ctx.moveTo(0, 0);
-      ctx.arc(0, 0, radius, a0, a1, true);
-      ctx.closePath();
-      ctx.fillStyle = `rgba(${rgb}, ${alpha.toFixed(4)})`;
-      ctx.fill();
-    }
-
-    // Leading edge line
-    ctx.beginPath();
-    ctx.moveTo(0, 0);
-    ctx.lineTo(radius, 0);
-    ctx.strokeStyle = `rgba(${rgb}, 0.08)`;
+    ctx.strokeStyle = `rgba(${rgb}, ${opacity.toFixed(4)})`;
     ctx.lineWidth   = 1;
-    ctx.stroke();
 
-    ctx.restore();
+    // Horizontal stroke
+    ctx.moveTo(x - size, y);
+    ctx.lineTo(x + size, y);
+
+    // Vertical stroke
+    ctx.moveTo(x, y - size);
+    ctx.lineTo(x, y + size);
+
+    ctx.stroke();
 
     // Tiny center dot
     ctx.beginPath();
-    ctx.arc(cx, cy, 2, 0, Math.PI * 2);
-    ctx.fillStyle = `rgba(${rgb}, 0.1)`;
+    ctx.arc(x, y, 1, 0, Math.PI * 2);
+    ctx.fillStyle = `rgba(${rgb}, ${(opacity * 0.8).toFixed(4)})`;
     ctx.fill();
   }
 
-  // ─── Layer 5: Mouse Interaction ────────────────────────────────────
+  // ─── Layer 2: Scanning Line ───────────────────────────────────────
 
-  _drawMouseInteraction(ctx) {
-    const mx  = this.mouse.x;
-    const my  = this.mouse.y;
-    const R   = 160;                  // interaction radius
-    const rgb = SecurityGrid.CYAN_RGB;
-    const size = this.config.hexSize;
+  _drawScanLine(ctx) {
+    const rgb = SecurityCanvas.CYAN_RGB;
+    const y   = this.scanLineY;
 
-    // Highlight nearby hex cells
-    const nearby = this._getNearbyHexes(mx, my, R);
-    for (const idx of nearby) {
-      const hex  = this.hexCenters[idx];
-      const dist = this._dist(hex.x, hex.y, mx, my);
-      if (dist > R) continue;
+    // Main scan line: horizontal gradient (transparent -> cyan -> transparent)
+    const grad = ctx.createLinearGradient(0, y, this.width, y);
+    grad.addColorStop(0,    `rgba(${rgb}, 0)`);
+    grad.addColorStop(0.15, `rgba(${rgb}, 0.12)`);
+    grad.addColorStop(0.5,  `rgba(${rgb}, 0.18)`);
+    grad.addColorStop(0.85, `rgba(${rgb}, 0.12)`);
+    grad.addColorStop(1,    `rgba(${rgb}, 0)`);
 
-      const intensity = 1 - dist / R;
-      const ease      = intensity * intensity;       // quadratic falloff
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(this.width, y);
+    ctx.strokeStyle = grad;
+    ctx.lineWidth   = 1.5;
+    ctx.stroke();
 
-      // Bright hex outline
-      ctx.beginPath();
-      this._traceHexPath(ctx, hex.x, hex.y, size);
-      ctx.strokeStyle = `rgba(${rgb}, ${(ease * 0.15).toFixed(4)})`;
-      ctx.lineWidth   = 1;
-      ctx.stroke();
+    // Glow region above and below the line (vertical gradient)
+    const glowH = 30;
+    const vGrad = ctx.createLinearGradient(0, y - glowH, 0, y + glowH);
+    vGrad.addColorStop(0,   `rgba(${rgb}, 0)`);
+    vGrad.addColorStop(0.4, `rgba(${rgb}, 0.03)`);
+    vGrad.addColorStop(0.5, `rgba(${rgb}, 0.06)`);
+    vGrad.addColorStop(0.6, `rgba(${rgb}, 0.03)`);
+    vGrad.addColorStop(1,   `rgba(${rgb}, 0)`);
 
-      // Subtle fill
-      ctx.fillStyle = `rgba(${rgb}, ${(ease * 0.03).toFixed(4)})`;
-      ctx.fill();
-    }
+    ctx.fillStyle = vGrad;
+    ctx.fillRect(0, y - glowH, this.width, glowH * 2);
 
-    // Connection lines from cursor to nearby shield nodes
-    for (const s of this.shieldNodes) {
-      const d = this._dist(s.x, s.y, mx, my);
-      if (d < 200) {
-        const a = (1 - d / 200) * 0.08;
+    // Brighten grid lines near the scan line
+    const spacing = this.config.gridSpacing;
+    const range   = 50;
+    const rgb2    = SecurityCanvas.CYAN_RGB;
+
+    // Find horizontal grid lines within range
+    const rows = Math.ceil(this.height / spacing) + 1;
+    for (let r = 0; r <= rows; r++) {
+      const gy   = r * spacing;
+      const dist = Math.abs(gy - y);
+      if (dist < range) {
+        const intensity = 1 - dist / range;
+        const alpha     = intensity * 0.12;
         ctx.beginPath();
-        ctx.moveTo(mx, my);
-        ctx.lineTo(s.x, s.y);
-        ctx.strokeStyle = `rgba(${rgb}, ${a.toFixed(4)})`;
-        ctx.lineWidth   = 0.5;
+        ctx.moveTo(0, gy);
+        ctx.lineTo(this.width, gy);
+        ctx.strokeStyle = `rgba(${rgb2}, ${alpha.toFixed(4)})`;
+        ctx.lineWidth   = 0.8;
         ctx.stroke();
       }
     }
 
-    // Soft radial glow under cursor
-    const glow = ctx.createRadialGradient(mx, my, 0, mx, my, 80);
+    // Find vertical grid lines within range (brighten a narrow band)
+    const cols = Math.ceil(this.width / spacing) + 1;
+    for (let c = 0; c <= cols; c++) {
+      const gx = c * spacing;
+      // Only draw a short brightened segment near the scan line
+      const segTop = Math.max(0, y - range);
+      const segBot = Math.min(this.height, y + range);
+      const alpha  = 0.06;
+      ctx.beginPath();
+      ctx.moveTo(gx, segTop);
+      ctx.lineTo(gx, segBot);
+      ctx.strokeStyle = `rgba(${rgb2}, ${alpha.toFixed(4)})`;
+      ctx.lineWidth   = 0.5;
+      ctx.stroke();
+    }
+  }
+
+  // ─── Layer 3: Floating Security Icons ─────────────────────────────
+
+  _drawIcons(ctx) {
+    for (const icon of this.icons) {
+      let opacity = icon.opacity + icon.scanBoost;
+
+      // Mouse proximity boost
+      if (this.config.mouseEnabled && this.mouse.active) {
+        const d = this._dist(icon.x, icon.y, this.mouse.x, this.mouse.y);
+        if (d < 120) {
+          opacity += (1 - d / 120) * 0.15;
+        }
+      }
+
+      opacity = Math.min(opacity, 0.4);
+      this._drawIconShape(ctx, icon, opacity);
+    }
+  }
+
+  _drawIconShape(ctx, icon, opacity) {
+    ctx.save();
+    ctx.translate(icon.x, icon.y);
+    ctx.rotate(icon.rotation);
+
+    const rgb = SecurityCanvas.CYAN_RGB;
+    ctx.strokeStyle = `rgba(${rgb}, ${opacity.toFixed(4)})`;
+    ctx.lineWidth   = 1.2;
+    ctx.lineCap     = 'round';
+    ctx.lineJoin    = 'round';
+
+    const s = icon.size * 0.5;  // half-size for drawing
+
+    switch (icon.type) {
+      case SecurityCanvas.ICON_CAMERA:
+        this._drawCameraIcon(ctx, s);
+        break;
+      case SecurityCanvas.ICON_LOCK:
+        this._drawLockIcon(ctx, s);
+        break;
+      case SecurityCanvas.ICON_SHIELD:
+        this._drawShieldIcon(ctx, s, opacity);
+        break;
+      case SecurityCanvas.ICON_EYE:
+        this._drawEyeIcon(ctx, s);
+        break;
+    }
+
+    ctx.restore();
+  }
+
+  /**
+   * Camera icon: rectangular body with a triangular lens protrusion on the right.
+   */
+  _drawCameraIcon(ctx, s) {
+    // Camera body (rectangle)
+    const bw = s * 1.4;
+    const bh = s * 0.9;
+    ctx.beginPath();
+    ctx.rect(-bw * 0.5, -bh * 0.5, bw, bh);
+    ctx.stroke();
+
+    // Lens circle
+    ctx.beginPath();
+    ctx.arc(0, 0, s * 0.28, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Small indicator light (top-left)
+    ctx.beginPath();
+    ctx.arc(-bw * 0.3, -bh * 0.3, s * 0.07, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Mounting bracket on top
+    ctx.beginPath();
+    ctx.moveTo(-s * 0.15, -bh * 0.5);
+    ctx.lineTo(-s * 0.15, -bh * 0.5 - s * 0.25);
+    ctx.lineTo(s * 0.15, -bh * 0.5 - s * 0.25);
+    ctx.lineTo(s * 0.15, -bh * 0.5);
+    ctx.stroke();
+  }
+
+  /**
+   * Lock/padlock icon: rectangular body with an arch on top.
+   */
+  _drawLockIcon(ctx, s) {
+    // Lock body
+    const bw = s * 0.9;
+    const bh = s * 0.7;
+    const by = s * 0.1;
+    ctx.beginPath();
+    ctx.rect(-bw * 0.5, by, bw, bh);
+    ctx.stroke();
+
+    // Shackle (arch)
+    ctx.beginPath();
+    ctx.arc(0, by, bw * 0.38, Math.PI, 0, false);
+    ctx.stroke();
+
+    // Keyhole
+    ctx.beginPath();
+    ctx.arc(0, by + bh * 0.35, s * 0.1, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0, by + bh * 0.45);
+    ctx.lineTo(0, by + bh * 0.7);
+    ctx.stroke();
+  }
+
+  /**
+   * Shield icon: pointed-bottom shield outline with a checkmark inside.
+   */
+  _drawShieldIcon(ctx, s, opacity) {
+    const rgb = SecurityCanvas.CYAN_RGB;
+
+    // Shield outline
+    ctx.beginPath();
+    ctx.moveTo(0, -s * 0.8);
+    ctx.lineTo(s * 0.7, -s * 0.45);
+    ctx.lineTo(s * 0.7, s * 0.15);
+    ctx.lineTo(0, s * 0.8);
+    ctx.lineTo(-s * 0.7, s * 0.15);
+    ctx.lineTo(-s * 0.7, -s * 0.45);
+    ctx.closePath();
+    ctx.stroke();
+
+    // Very subtle fill
+    ctx.fillStyle = `rgba(${rgb}, ${(opacity * 0.1).toFixed(4)})`;
+    ctx.fill();
+
+    // Checkmark inside
+    ctx.beginPath();
+    ctx.moveTo(-s * 0.25, s * 0.0);
+    ctx.lineTo(-s * 0.05, s * 0.25);
+    ctx.lineTo(s * 0.3, -s * 0.2);
+    ctx.stroke();
+  }
+
+  /**
+   * Eye/monitoring icon: almond-shaped eye with a circle iris.
+   */
+  _drawEyeIcon(ctx, s) {
+    // Outer eye shape (two arcs forming an almond)
+    ctx.beginPath();
+    ctx.moveTo(-s * 0.8, 0);
+    ctx.quadraticCurveTo(0, -s * 0.6, s * 0.8, 0);
+    ctx.quadraticCurveTo(0, s * 0.6, -s * 0.8, 0);
+    ctx.closePath();
+    ctx.stroke();
+
+    // Iris circle
+    ctx.beginPath();
+    ctx.arc(0, 0, s * 0.25, 0, Math.PI * 2);
+    ctx.stroke();
+
+    // Pupil dot
+    ctx.beginPath();
+    ctx.arc(0, 0, s * 0.08, 0, Math.PI * 2);
+    ctx.fillStyle = ctx.strokeStyle;
+    ctx.fill();
+  }
+
+  // ─── Layer 4: Connection Network ──────────────────────────────────
+
+  _drawConnectionNetwork(ctx) {
+    const rgb = SecurityCanvas.CYAN_RGB;
+
+    ctx.save();
+    ctx.setLineDash([4, 6]);
+    ctx.lineWidth = 0.5;
+
+    for (const conn of this.connections) {
+      const a = this.icons[conn.from];
+      const b = this.icons[conn.to];
+      const d = this._dist(a.x, a.y, b.x, b.y);
+
+      // Opacity falls off with distance
+      const distFactor = 1 - d / 200;
+      const alpha      = 0.03 + distFactor * 0.02;
+
+      ctx.beginPath();
+      ctx.moveTo(a.x, a.y);
+      ctx.lineTo(b.x, b.y);
+      ctx.strokeStyle = `rgba(${rgb}, ${alpha.toFixed(4)})`;
+      ctx.stroke();
+    }
+
+    ctx.setLineDash([]);
+    ctx.restore();
+  }
+
+  // ─── Layer 5: Data Particles ──────────────────────────────────────
+
+  _drawDataParticles(ctx) {
+    const rgb = SecurityCanvas.CYAN_RGB;
+
+    for (const p of this.particles) {
+      if (p.connIndex >= this.connections.length) continue;
+
+      const conn = this.connections[p.connIndex];
+      if (!conn) continue;
+
+      const a = this.icons[conn.from];
+      const b = this.icons[conn.to];
+      const t = Math.max(0, Math.min(1, p.progress));
+
+      const px = a.x + (b.x - a.x) * t;
+      const py = a.y + (b.y - a.y) * t;
+
+      // Trail
+      if (p.trail.length > 1) {
+        for (let i = 0; i < p.trail.length - 1; i++) {
+          const frac      = i / p.trail.length;
+          const trailAlpha = frac * 0.25;
+          const trailSize  = 0.5 + frac * 0.8;
+
+          ctx.beginPath();
+          ctx.arc(p.trail[i].x, p.trail[i].y, trailSize, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(${rgb}, ${trailAlpha.toFixed(4)})`;
+          ctx.fill();
+        }
+      }
+
+      // Main particle dot
+      ctx.save();
+      ctx.shadowColor = `rgba(${rgb}, 0.5)`;
+      ctx.shadowBlur  = 8;
+
+      ctx.beginPath();
+      ctx.arc(px, py, 2, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${rgb}, 0.45)`;
+      ctx.fill();
+
+      // Bright core
+      ctx.shadowBlur = 3;
+      ctx.beginPath();
+      ctx.arc(px, py, 1, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${rgb}, 0.7)`;
+      ctx.fill();
+
+      ctx.restore();
+    }
+  }
+
+  // ─── Layer 6: Corner Brackets ─────────────────────────────────────
+
+  _drawBrackets(ctx) {
+    for (const br of this.brackets) {
+      if (br.opacity <= 0.005) continue;
+      this._drawBracketShape(ctx, br.x, br.y, br.w, br.h, br.opacity);
+    }
+  }
+
+  _drawBracketShape(ctx, cx, cy, w, h, opacity) {
+    const rgb = SecurityCanvas.CYAN_RGB;
+    const hw  = w * 0.5;
+    const hh  = h * 0.5;
+    const arm = Math.min(w, h) * 0.3;   // length of each L-arm
+
+    ctx.beginPath();
+    ctx.strokeStyle = `rgba(${rgb}, ${opacity.toFixed(4)})`;
+    ctx.lineWidth   = 1.2;
+
+    // Top-left corner
+    ctx.moveTo(cx - hw + arm, cy - hh);
+    ctx.lineTo(cx - hw, cy - hh);
+    ctx.lineTo(cx - hw, cy - hh + arm);
+
+    // Top-right corner
+    ctx.moveTo(cx + hw - arm, cy - hh);
+    ctx.lineTo(cx + hw, cy - hh);
+    ctx.lineTo(cx + hw, cy - hh + arm);
+
+    // Bottom-right corner
+    ctx.moveTo(cx + hw, cy + hh - arm);
+    ctx.lineTo(cx + hw, cy + hh);
+    ctx.lineTo(cx + hw - arm, cy + hh);
+
+    // Bottom-left corner
+    ctx.moveTo(cx - hw + arm, cy + hh);
+    ctx.lineTo(cx - hw, cy + hh);
+    ctx.lineTo(cx - hw, cy + hh - arm);
+
+    ctx.stroke();
+
+    // Small crosshair in center of bracket
+    const chSize = 3;
+    ctx.beginPath();
+    ctx.strokeStyle = `rgba(${rgb}, ${(opacity * 0.6).toFixed(4)})`;
+    ctx.lineWidth   = 0.8;
+    ctx.moveTo(cx - chSize, cy);
+    ctx.lineTo(cx + chSize, cy);
+    ctx.moveTo(cx, cy - chSize);
+    ctx.lineTo(cx, cy + chSize);
+    ctx.stroke();
+  }
+
+  // ─── Mouse Interaction ────────────────────────────────────────────
+
+  _drawMouseInteraction(ctx) {
+    const mx  = this.mouse.x;
+    const my  = this.mouse.y;
+    const rgb = SecurityCanvas.CYAN_RGB;
+
+    // Subtle radial glow under cursor
+    const glow = ctx.createRadialGradient(mx, my, 0, mx, my, 100);
     glow.addColorStop(0, `rgba(${rgb}, 0.04)`);
     glow.addColorStop(1, `rgba(${rgb}, 0)`);
     ctx.beginPath();
-    ctx.arc(mx, my, 80, 0, Math.PI * 2);
+    ctx.arc(mx, my, 100, 0, Math.PI * 2);
     ctx.fillStyle = glow;
     ctx.fill();
+
+    // Faint connection lines from cursor to nearby icons
+    for (const icon of this.icons) {
+      const d = this._dist(icon.x, icon.y, mx, my);
+      if (d < 120) {
+        const alpha = (1 - d / 120) * 0.06;
+        ctx.beginPath();
+        ctx.moveTo(mx, my);
+        ctx.lineTo(icon.x, icon.y);
+        ctx.strokeStyle = `rgba(${rgb}, ${alpha.toFixed(4)})`;
+        ctx.lineWidth   = 0.5;
+        ctx.stroke();
+      }
+    }
   }
 
   // ═══════════════════════════════════════════════════════════════════
   // UTILITIES
   // ═══════════════════════════════════════════════════════════════════
 
-  /** Euclidean distance between two points. */
   _dist(x1, y1, x2, y2) {
     const dx = x2 - x1;
     const dy = y2 - y1;
@@ -855,8 +1029,7 @@ class SecurityGrid {
   }
 
   /**
-   * Return `count` unique random indices chosen from [0, total).
-   * Uses a partial Fisher-Yates shuffle.
+   * Return `count` unique random indices from [0, total).
    */
   _randomSample(total, count) {
     if (count >= total) return Array.from({ length: total }, (_, i) => i);
@@ -882,11 +1055,11 @@ class SecurityGrid {
       this.canvas.removeEventListener('mousemove',  this._boundMouseMove);
       this.canvas.removeEventListener('mouseleave', this._boundMouseLeave);
     }
-    this.hexCenters   = [];
-    this.hexEdges     = [];
-    this.shieldNodes  = [];
-    this.dataPackets  = [];
-    this.spatialGrid  = {};
+    this.crosshairs  = [];
+    this.icons       = [];
+    this.connections = [];
+    this.particles   = [];
+    this.brackets    = [];
   }
 }
 
@@ -895,5 +1068,5 @@ class SecurityGrid {
 // ═══════════════════════════════════════════════════════════════════════
 
 document.addEventListener('DOMContentLoaded', () => {
-  new SecurityGrid('particleCanvas');
+  new SecurityCanvas('particleCanvas');
 });
