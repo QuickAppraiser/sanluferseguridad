@@ -397,60 +397,47 @@
               <div class="dashboard__cam">
                 <div class="dashboard__cam-feed dashboard__cam-feed--1">
                   <div class="dashboard__cam-scanline"></div>
-                  <!-- Entrance scene: door frame + person with AI detection box -->
-                  <div class="cam-scene cam-scene--entrance">
-                    <div class="cam-scene__door"></div>
-                    <div class="cam-scene__person cam-scene__person--1"></div>
-                    <div class="cam-scene__detect cam-scene__detect--1"></div>
-                    <div class="cam-scene__ai-tag">ID: Autorizado</div>
+                  <div class="cam-overlay">
+                    <span class="cam-overlay__rec"><span class="cam-overlay__rec-dot"></span>REC</span>
+                    <span class="cam-overlay__time">14:23:07</span>
+                    <span class="cam-overlay__ai"><span class="lang-es">IA Activa</span><span class="lang-en">AI Active</span></span>
+                    <div class="cam-overlay__detect cam-overlay__detect--person"></div>
                   </div>
-                  <span class="cam-scene__time">14:23:07</span>
-                  <span class="cam-scene__rec">REC</span>
                 </div>
                 <div class="dashboard__cam-label"><span class="dashboard__cam-dot dashboard__cam-dot--green"></span> CAM-01 <span class="lang-es">Entrada</span><span class="lang-en">Entrance</span></div>
               </div>
               <div class="dashboard__cam">
                 <div class="dashboard__cam-feed dashboard__cam-feed--2">
                   <div class="dashboard__cam-scanline"></div>
-                  <!-- Lobby scene: desk + two people -->
-                  <div class="cam-scene cam-scene--lobby">
-                    <div class="cam-scene__desk"></div>
-                    <div class="cam-scene__person cam-scene__person--2"></div>
-                    <div class="cam-scene__person cam-scene__person--3"></div>
-                    <div class="cam-scene__detect cam-scene__detect--2"></div>
+                  <div class="cam-overlay">
+                    <span class="cam-overlay__rec"><span class="cam-overlay__rec-dot"></span>REC</span>
+                    <span class="cam-overlay__time">14:23:07</span>
+                    <div class="cam-overlay__detect cam-overlay__detect--area"></div>
                   </div>
-                  <span class="cam-scene__time">14:23:07</span>
-                  <span class="cam-scene__rec">REC</span>
                 </div>
                 <div class="dashboard__cam-label"><span class="dashboard__cam-dot dashboard__cam-dot--green"></span> CAM-02 Lobby</div>
               </div>
               <div class="dashboard__cam">
                 <div class="dashboard__cam-feed dashboard__cam-feed--3">
                   <div class="dashboard__cam-scanline"></div>
-                  <!-- Perimeter scene: fence + motion zone -->
-                  <div class="cam-scene cam-scene--perimeter">
-                    <div class="cam-scene__fence"></div>
-                    <div class="cam-scene__zone"></div>
-                    <div class="cam-scene__grid-overlay"></div>
+                  <div class="cam-overlay">
+                    <span class="cam-overlay__rec"><span class="cam-overlay__rec-dot"></span>REC</span>
+                    <span class="cam-overlay__time">14:23:09</span>
+                    <span class="cam-overlay__zone">ZONE A</span>
+                    <div class="cam-overlay__detect cam-overlay__detect--zone"></div>
                   </div>
-                  <span class="cam-scene__time">14:23:07</span>
-                  <span class="cam-scene__rec">REC</span>
                 </div>
                 <div class="dashboard__cam-label"><span class="dashboard__cam-dot dashboard__cam-dot--green"></span> CAM-03 <span class="lang-es">Perímetro</span><span class="lang-en">Perimeter</span></div>
               </div>
               <div class="dashboard__cam">
                 <div class="dashboard__cam-feed dashboard__cam-feed--4">
                   <div class="dashboard__cam-scanline"></div>
-                  <!-- Parking scene: cars + plate detection -->
-                  <div class="cam-scene cam-scene--parking">
-                    <div class="cam-scene__car cam-scene__car--1"></div>
-                    <div class="cam-scene__car cam-scene__car--2"></div>
-                    <div class="cam-scene__car cam-scene__car--3"></div>
-                    <div class="cam-scene__detect cam-scene__detect--3"></div>
-                    <div class="cam-scene__ai-tag cam-scene__ai-tag--plate">ABC-123</div>
+                  <div class="cam-overlay">
+                    <span class="cam-overlay__rec cam-overlay__rec--amber"><span class="cam-overlay__rec-dot cam-overlay__rec-dot--amber"></span>MOT</span>
+                    <span class="cam-overlay__time">14:23:10</span>
+                    <span class="cam-overlay__plate">LPR: ABC-123</span>
+                    <div class="cam-overlay__detect cam-overlay__detect--vehicle"></div>
                   </div>
-                  <span class="cam-scene__time">14:23:07</span>
-                  <span class="cam-scene__rec cam-scene__rec--amber">MOT</span>
                 </div>
                 <div class="dashboard__cam-label"><span class="dashboard__cam-dot dashboard__cam-dot--amber"></span> CAM-04 Parking</div>
               </div>

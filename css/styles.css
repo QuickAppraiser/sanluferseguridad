@@ -1423,37 +1423,81 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .dashboard__cam-feed {
-  height: 90px;
+  height: 100px;
   position: relative;
   overflow: hidden;
+  background-color: #0C1526;
+  background-size: cover;
+  background-position: center;
 }
 
+/* Security camera image filter overlay */
+.dashboard__cam-feed::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(0,20,30,0.15) 0%, transparent 30%, transparent 70%, rgba(0,20,30,0.25) 100%);
+  z-index: 1;
+  pointer-events: none;
+  mix-blend-mode: multiply;
+}
+
+/* Vignette + grid overlay */
+.dashboard__cam-feed::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.4) 100%),
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+  z-index: 2;
+  pointer-events: none;
+}
+
+/* Camera feed images with slow Ken Burns animation */
 .dashboard__cam-feed--1 {
-  background: linear-gradient(135deg, #0C1526 0%, #162032 50%, #0E1A2E 100%);
-  background-image:
-    radial-gradient(circle at 30% 60%, rgba(34, 211, 238, 0.03) 0%, transparent 40%),
-    linear-gradient(135deg, #0C1526, #162032);
+  background-image: url('../img/cams/entrance.jpg');
+  animation: cam-ken-burns-1 20s ease-in-out infinite alternate;
+  filter: saturate(0.6) brightness(0.7) contrast(1.1);
 }
 
 .dashboard__cam-feed--2 {
-  background: linear-gradient(135deg, #0E1A2E 0%, #142238 50%, #0C1526 100%);
-  background-image:
-    radial-gradient(circle at 60% 40%, rgba(34, 211, 238, 0.04) 0%, transparent 50%),
-    linear-gradient(135deg, #0E1A2E, #142238);
+  background-image: url('../img/cams/lobby.jpg');
+  animation: cam-ken-burns-2 25s ease-in-out infinite alternate;
+  filter: saturate(0.5) brightness(0.65) contrast(1.15);
 }
 
 .dashboard__cam-feed--3 {
-  background: linear-gradient(135deg, #142238 0%, #0C1526 50%, #162032 100%);
-  background-image:
-    radial-gradient(circle at 50% 50%, rgba(6, 182, 212, 0.03) 0%, transparent 40%),
-    linear-gradient(135deg, #142238, #0C1526);
+  background-image: url('../img/cams/perimeter.jpg');
+  animation: cam-ken-burns-3 22s ease-in-out infinite alternate;
+  filter: saturate(0.3) brightness(0.6) contrast(1.2);
 }
 
 .dashboard__cam-feed--4 {
-  background: linear-gradient(135deg, #162032 0%, #0E1A2E 50%, #142238 100%);
-  background-image:
-    radial-gradient(circle at 40% 70%, rgba(251, 191, 36, 0.02) 0%, transparent 40%),
-    linear-gradient(135deg, #162032, #0E1A2E);
+  background-image: url('../img/cams/parking.jpg');
+  animation: cam-ken-burns-4 18s ease-in-out infinite alternate;
+  filter: saturate(0.5) brightness(0.7) contrast(1.1);
+}
+
+/* Ken Burns (slow pan/zoom) animations - each camera moves differently */
+@keyframes cam-ken-burns-1 {
+  0% { background-position: 30% 40%; background-size: 120%; }
+  100% { background-position: 70% 60%; background-size: 135%; }
+}
+
+@keyframes cam-ken-burns-2 {
+  0% { background-position: 50% 30%; background-size: 115%; }
+  100% { background-position: 40% 60%; background-size: 130%; }
+}
+
+@keyframes cam-ken-burns-3 {
+  0% { background-position: 40% 50%; background-size: 125%; }
+  100% { background-position: 60% 40%; background-size: 140%; }
+}
+
+@keyframes cam-ken-burns-4 {
+  0% { background-position: 60% 30%; background-size: 110%; }
+  100% { background-position: 40% 50%; background-size: 125%; }
 }
 
 /* Scanning line animation on camera feeds */
@@ -1649,491 +1693,188 @@ h1, h2, h3, h4, h5, h6 {
   color: #10B981;
 }
 
-/* ---- Camera Scene Visuals (CSS-only) ---- */
+/* ---- Camera Overlay HUD (over stock photos) ---- */
 
-/* Shared scene container */
-.cam-scene {
+.cam-overlay {
   position: absolute;
   inset: 0;
   pointer-events: none;
   overflow: hidden;
 }
 
-/* Timestamp overlay */
-.cam-scene__time {
-  position: absolute;
-  top: 4px;
-  right: 6px;
-  font-family: 'Courier New', monospace;
-  font-size: 0.5rem;
-  color: rgba(203, 213, 225, 0.5);
-  z-index: 2;
-  letter-spacing: 0.05em;
-}
-
 /* REC indicator */
-.cam-scene__rec {
+.cam-overlay__rec {
   position: absolute;
-  top: 4px;
+  top: 5px;
   left: 6px;
-  font-family: var(--font-heading);
-  font-size: 0.45rem;
+  font-family: 'Courier New', monospace;
+  font-size: 8px;
   font-weight: 700;
   color: #EF4444;
-  letter-spacing: 0.1em;
-  z-index: 2;
+  letter-spacing: 0.08em;
+  z-index: 5;
+  display: flex;
+  align-items: center;
+  gap: 3px;
   animation: rec-blink 1.5s step-end infinite;
+  text-shadow: 0 0 3px rgba(0,0,0,0.8);
 }
 
-.cam-scene__rec::before {
-  content: '';
-  display: inline-block;
-  width: 4px;
-  height: 4px;
-  border-radius: 50%;
-  background: #EF4444;
-  margin-right: 3px;
-  vertical-align: middle;
-}
-
-.cam-scene__rec--amber {
+.cam-overlay__rec--amber {
   color: #FBBF24;
 }
 
-.cam-scene__rec--amber::before {
+.cam-overlay__rec-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #EF4444;
+  flex-shrink: 0;
+}
+
+.cam-overlay__rec-dot--amber {
   background: #FBBF24;
 }
+
+/* Timestamp */
+.cam-overlay__time {
+  position: absolute;
+  top: 5px;
+  right: 6px;
+  font-family: 'Courier New', monospace;
+  font-size: 8px;
+  color: rgba(255,255,255,0.5);
+  z-index: 5;
+  letter-spacing: 0.05em;
+  text-shadow: 0 0 3px rgba(0,0,0,0.8);
+}
+
+/* AI Active tag */
+.cam-overlay__ai {
+  position: absolute;
+  bottom: 5px;
+  left: 6px;
+  font-family: 'Courier New', monospace;
+  font-size: 7px;
+  color: #22D3EE;
+  z-index: 5;
+  padding: 1px 4px;
+  background: rgba(34, 211, 238, 0.12);
+  border: 1px solid rgba(34, 211, 238, 0.25);
+  border-radius: 2px;
+  text-shadow: 0 0 3px rgba(0,0,0,0.8);
+}
+
+/* Zone label */
+.cam-overlay__zone {
+  position: absolute;
+  bottom: 5px;
+  left: 6px;
+  font-family: 'Courier New', monospace;
+  font-size: 7px;
+  color: #10B981;
+  z-index: 5;
+  padding: 1px 4px;
+  background: rgba(16, 185, 129, 0.1);
+  border: 1px solid rgba(16, 185, 129, 0.25);
+  border-radius: 2px;
+  letter-spacing: 0.1em;
+  text-shadow: 0 0 3px rgba(0,0,0,0.8);
+}
+
+/* License plate reader */
+.cam-overlay__plate {
+  position: absolute;
+  bottom: 5px;
+  left: 6px;
+  font-family: 'Courier New', monospace;
+  font-size: 7px;
+  color: #FBBF24;
+  z-index: 5;
+  padding: 1px 4px;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.25);
+  border-radius: 2px;
+  text-shadow: 0 0 3px rgba(0,0,0,0.8);
+}
+
+/* AI Detection boxes (animated pulsing rectangles on camera feeds) */
+.cam-overlay__detect {
+  position: absolute;
+  border: 1px solid rgba(34, 211, 238, 0.5);
+  border-radius: 2px;
+  z-index: 4;
+  animation: cam-detect-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes cam-detect-pulse {
+  0%, 100% { opacity: 0.8; border-color: rgba(34, 211, 238, 0.6); }
+  50% { opacity: 0.4; border-color: rgba(34, 211, 238, 0.25); }
+}
+
+/* Person detection box (CAM-01) */
+.cam-overlay__detect--person {
+  left: 35%;
+  top: 20%;
+  width: 18px;
+  height: 35px;
+  animation: cam-detect-pulse 2.5s ease-in-out infinite, cam-person-move 10s linear infinite;
+}
+
+@keyframes cam-person-move {
+  0% { left: 20%; opacity: 0; }
+  10% { opacity: 0.9; }
+  50% { left: 55%; opacity: 0.9; }
+  60% { left: 55%; opacity: 0; }
+  100% { left: 55%; opacity: 0; }
+}
+
+/* Area detection box (CAM-02) */
+.cam-overlay__detect--area {
+  right: 15%;
+  top: 30%;
+  width: 25px;
+  height: 30px;
+  animation: cam-detect-pulse 3s ease-in-out infinite;
+}
+
+/* Zone perimeter detection (CAM-03) */
+.cam-overlay__detect--zone {
+  left: 10%;
+  top: 15%;
+  right: 10%;
+  bottom: 40%;
+  border: 1px dashed rgba(16, 185, 129, 0.3);
+  animation: cam-zone-pulse 4s ease-in-out infinite;
+}
+
+@keyframes cam-zone-pulse {
+  0%, 100% { border-color: rgba(16, 185, 129, 0.3); }
+  50% { border-color: rgba(16, 185, 129, 0.1); }
+}
+
+/* Vehicle detection box (CAM-04) */
+.cam-overlay__detect--vehicle {
+  right: 20%;
+  bottom: 25%;
+  width: 35px;
+  height: 20px;
+  border-color: rgba(251, 191, 36, 0.5);
+  animation: cam-detect-pulse-amber 2s ease-in-out infinite;
+}
+
+@keyframes cam-detect-pulse-amber {
+  0%, 100% { opacity: 0.8; border-color: rgba(251, 191, 36, 0.5); }
+  50% { opacity: 0.3; border-color: rgba(251, 191, 36, 0.2); }
+}
+
+/* (old cam-scene CSS removed - now using stock photos with overlays) */
 
 @keyframes rec-blink {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.3; }
 }
 
-/* AI Detection boxes (green pulsing rectangles) */
-.cam-scene__detect {
-  position: absolute;
-  border: 1px solid rgba(34, 211, 238, 0.6);
-  border-radius: 2px;
-  z-index: 2;
-  animation: detect-pulse 2s ease-in-out infinite;
-}
-
-.cam-scene__detect::before {
-  content: '';
-  position: absolute;
-  top: -1px;
-  left: -1px;
-  right: -1px;
-  bottom: -1px;
-  border: 1px solid rgba(34, 211, 238, 0.2);
-  border-radius: 3px;
-}
-
-@keyframes detect-pulse {
-  0%, 100% { border-color: rgba(34, 211, 238, 0.6); box-shadow: 0 0 4px rgba(34, 211, 238, 0.2); }
-  50% { border-color: rgba(34, 211, 238, 0.3); box-shadow: 0 0 8px rgba(34, 211, 238, 0.1); }
-}
-
-/* AI Tag labels */
-.cam-scene__ai-tag {
-  position: absolute;
-  font-family: 'Courier New', monospace;
-  font-size: 0.4rem;
-  padding: 1px 4px;
-  background: rgba(34, 211, 238, 0.15);
-  border: 1px solid rgba(34, 211, 238, 0.3);
-  border-radius: 2px;
-  color: #22D3EE;
-  white-space: nowrap;
-  z-index: 3;
-  letter-spacing: 0.03em;
-}
-
-/* =====  CAM-01: Entrance Scene  ===== */
-
-/* Door frame */
-.cam-scene--entrance .cam-scene__door {
-  position: absolute;
-  right: 15%;
-  bottom: 0;
-  width: 30%;
-  height: 85%;
-  border: 1px solid rgba(148, 163, 184, 0.12);
-  border-bottom: none;
-  border-radius: 2px 2px 0 0;
-  background: linear-gradient(180deg, rgba(15, 23, 42, 0.3) 0%, rgba(34, 211, 238, 0.02) 100%);
-}
-
-.cam-scene--entrance .cam-scene__door::after {
-  content: '';
-  position: absolute;
-  left: 8%;
-  top: 55%;
-  width: 3px;
-  height: 3px;
-  border-radius: 50%;
-  background: rgba(251, 191, 36, 0.5);
-}
-
-/* Person silhouette walking through entrance */
-.cam-scene--entrance .cam-scene__person--1 {
-  position: absolute;
-  left: 30%;
-  bottom: 0;
-  width: 14px;
-  height: 35px;
-  animation: person-walk 8s linear infinite;
-}
-
-.cam-scene--entrance .cam-scene__person--1::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: rgba(148, 163, 184, 0.25);
-}
-
-.cam-scene--entrance .cam-scene__person--1::after {
-  content: '';
-  position: absolute;
-  top: 9px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 10px;
-  height: 20px;
-  border-radius: 3px 3px 0 0;
-  background: rgba(148, 163, 184, 0.18);
-}
-
-@keyframes person-walk {
-  0% { left: 10%; opacity: 0; }
-  10% { opacity: 1; }
-  60% { left: 55%; opacity: 1; }
-  70% { left: 55%; opacity: 0.6; }
-  80% { left: 55%; opacity: 0; }
-  100% { left: 55%; opacity: 0; }
-}
-
-/* Detection box around person at entrance */
-.cam-scene__detect--1 {
-  left: 26%;
-  bottom: 5px;
-  width: 22px;
-  height: 42px;
-  animation: detect-pulse 2s ease-in-out infinite, detect-follow 8s linear infinite;
-}
-
-@keyframes detect-follow {
-  0% { left: 6%; opacity: 0; }
-  10% { opacity: 1; }
-  60% { left: 51%; opacity: 1; }
-  70% { opacity: 0; }
-  100% { opacity: 0; }
-}
-
-/* AI tag follows detection */
-.cam-scene--entrance .cam-scene__ai-tag {
-  bottom: 50px;
-  left: 28%;
-  animation: detect-follow 8s linear infinite;
-}
-
-/* =====  CAM-02: Lobby Scene  ===== */
-
-/* Reception desk */
-.cam-scene--lobby .cam-scene__desk {
-  position: absolute;
-  left: 10%;
-  bottom: 0;
-  width: 35%;
-  height: 28px;
-  background: linear-gradient(0deg, rgba(148, 163, 184, 0.1) 0%, rgba(148, 163, 184, 0.05) 100%);
-  border: 1px solid rgba(148, 163, 184, 0.08);
-  border-bottom: none;
-  border-radius: 2px 2px 0 0;
-}
-
-/* Person at desk */
-.cam-scene--lobby .cam-scene__person--2 {
-  position: absolute;
-  left: 20%;
-  bottom: 25px;
-  width: 12px;
-  height: 25px;
-}
-
-.cam-scene--lobby .cam-scene__person--2::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(148, 163, 184, 0.22);
-}
-
-.cam-scene--lobby .cam-scene__person--2::after {
-  content: '';
-  position: absolute;
-  top: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 9px;
-  height: 15px;
-  border-radius: 3px 3px 0 0;
-  background: rgba(148, 163, 184, 0.15);
-}
-
-/* Walking person in lobby */
-.cam-scene--lobby .cam-scene__person--3 {
-  position: absolute;
-  right: 25%;
-  bottom: 0;
-  width: 12px;
-  height: 30px;
-  animation: lobby-walk 10s linear infinite;
-}
-
-.cam-scene--lobby .cam-scene__person--3::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  background: rgba(148, 163, 184, 0.22);
-}
-
-.cam-scene--lobby .cam-scene__person--3::after {
-  content: '';
-  position: absolute;
-  top: 8px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 9px;
-  height: 17px;
-  border-radius: 3px 3px 0 0;
-  background: rgba(148, 163, 184, 0.15);
-}
-
-@keyframes lobby-walk {
-  0% { right: 5%; }
-  50% { right: 50%; }
-  100% { right: 5%; }
-}
-
-/* Detection box in lobby */
-.cam-scene__detect--2 {
-  right: 22%;
-  bottom: 3px;
-  width: 20px;
-  height: 36px;
-  animation: detect-pulse 2s ease-in-out infinite, lobby-detect 10s linear infinite;
-}
-
-@keyframes lobby-detect {
-  0% { right: 2%; }
-  50% { right: 47%; }
-  100% { right: 2%; }
-}
-
-/* =====  CAM-03: Perimeter Scene  ===== */
-
-/* Fence line */
-.cam-scene--perimeter .cam-scene__fence {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: 30%;
-  height: 1px;
-  background: rgba(148, 163, 184, 0.15);
-}
-
-.cam-scene--perimeter .cam-scene__fence::before {
-  content: '';
-  position: absolute;
-  top: -12px;
-  left: 15%;
-  width: 1px;
-  height: 12px;
-  background: rgba(148, 163, 184, 0.1);
-  box-shadow:
-    30px 0 0 rgba(148, 163, 184, 0.1),
-    60px 0 0 rgba(148, 163, 184, 0.1),
-    90px 0 0 rgba(148, 163, 184, 0.1),
-    120px 0 0 rgba(148, 163, 184, 0.1),
-    150px 0 0 rgba(148, 163, 184, 0.1);
-}
-
-/* AI motion detection zone overlay */
-.cam-scene--perimeter .cam-scene__zone {
-  position: absolute;
-  left: 10%;
-  right: 10%;
-  top: 15%;
-  bottom: 35%;
-  border: 1px dashed rgba(16, 185, 129, 0.25);
-  border-radius: 2px;
-  animation: zone-pulse 4s ease-in-out infinite;
-}
-
-.cam-scene--perimeter .cam-scene__zone::after {
-  content: 'ZONE A';
-  position: absolute;
-  top: 2px;
-  left: 4px;
-  font-family: 'Courier New', monospace;
-  font-size: 0.35rem;
-  color: rgba(16, 185, 129, 0.4);
-  letter-spacing: 0.1em;
-}
-
-@keyframes zone-pulse {
-  0%, 100% { border-color: rgba(16, 185, 129, 0.25); }
-  50% { border-color: rgba(16, 185, 129, 0.1); }
-}
-
-/* Grid overlay for perimeter */
-.cam-scene--perimeter .cam-scene__grid-overlay {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(34, 211, 238, 0.015) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(34, 211, 238, 0.015) 1px, transparent 1px);
-  background-size: 20px 20px;
-}
-
-/* =====  CAM-04: Parking Scene  ===== */
-
-/* Parking lot lines */
-.cam-scene--parking .cam-scene__car {
-  position: absolute;
-  border-radius: 2px;
-  background: rgba(148, 163, 184, 0.12);
-  border: 1px solid rgba(148, 163, 184, 0.06);
-}
-
-.cam-scene--parking .cam-scene__car--1 {
-  left: 8%;
-  bottom: 8px;
-  width: 28%;
-  height: 22px;
-}
-
-.cam-scene--parking .cam-scene__car--1::before {
-  content: '';
-  position: absolute;
-  top: -6px;
-  left: 15%;
-  width: 60%;
-  height: 7px;
-  border-radius: 2px 2px 0 0;
-  background: rgba(148, 163, 184, 0.08);
-}
-
-.cam-scene--parking .cam-scene__car--2 {
-  left: 40%;
-  bottom: 8px;
-  width: 25%;
-  height: 20px;
-}
-
-.cam-scene--parking .cam-scene__car--2::before {
-  content: '';
-  position: absolute;
-  top: -5px;
-  left: 18%;
-  width: 55%;
-  height: 6px;
-  border-radius: 2px 2px 0 0;
-  background: rgba(148, 163, 184, 0.07);
-}
-
-/* Moving car entering parking */
-.cam-scene--parking .cam-scene__car--3 {
-  right: 5%;
-  bottom: 40px;
-  width: 22%;
-  height: 16px;
-  animation: car-enter 12s linear infinite;
-}
-
-.cam-scene--parking .cam-scene__car--3::before {
-  content: '';
-  position: absolute;
-  top: -5px;
-  left: 15%;
-  width: 55%;
-  height: 6px;
-  border-radius: 2px 2px 0 0;
-  background: rgba(148, 163, 184, 0.08);
-}
-
-/* Headlights glow on moving car */
-.cam-scene--parking .cam-scene__car--3::after {
-  content: '';
-  position: absolute;
-  left: -3px;
-  top: 3px;
-  width: 4px;
-  height: 3px;
-  border-radius: 1px;
-  background: rgba(251, 191, 36, 0.4);
-  box-shadow: 0 7px 0 rgba(251, 191, 36, 0.4), -4px 3px 6px rgba(251, 191, 36, 0.08), -4px 10px 6px rgba(251, 191, 36, 0.08);
-}
-
-@keyframes car-enter {
-  0% { right: -25%; opacity: 0; }
-  15% { opacity: 1; }
-  50% { right: 8%; opacity: 1; }
-  55% { right: 8%; opacity: 0.5; }
-  60%, 100% { right: 8%; opacity: 0; }
-}
-
-/* Detection box around moving car */
-.cam-scene__detect--3 {
-  right: 8%;
-  bottom: 35px;
-  width: 30%;
-  height: 28px;
-  border-color: rgba(251, 191, 36, 0.5);
-  animation: detect-pulse-amber 2s ease-in-out infinite, car-detect 12s linear infinite;
-}
-
-.cam-scene__detect--3::before {
-  border-color: rgba(251, 191, 36, 0.15);
-}
-
-@keyframes detect-pulse-amber {
-  0%, 100% { border-color: rgba(251, 191, 36, 0.5); box-shadow: 0 0 4px rgba(251, 191, 36, 0.15); }
-  50% { border-color: rgba(251, 191, 36, 0.25); box-shadow: 0 0 8px rgba(251, 191, 36, 0.08); }
-}
-
-@keyframes car-detect {
-  0% { right: -28%; opacity: 0; }
-  15% { opacity: 1; }
-  50% { right: 5%; opacity: 1; }
-  55% { opacity: 0; }
-  60%, 100% { opacity: 0; }
-}
-
-/* License plate tag */
-.cam-scene__ai-tag--plate {
-  bottom: 25px;
-  right: 5%;
-  background: rgba(251, 191, 36, 0.12);
-  border-color: rgba(251, 191, 36, 0.3);
-  color: #FBBF24;
-  animation: car-detect 12s linear infinite;
-}
 
 /* ========================================
    13. PROCESS SECTION
