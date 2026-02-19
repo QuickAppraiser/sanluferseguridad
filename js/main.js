@@ -1,9 +1,103 @@
 /**
  * Main Application Logic
- * Navbar, Mobile Menu, Smooth Scroll, Contact Form
+ * Navbar, Mobile Menu, Smooth Scroll, Contact Form,
+ * Language Toggle, Theme Toggle, Preloader, Back to Top
  */
 
-// Navbar Scroll Effect
+// ==========================================
+// PRELOADER
+// ==========================================
+function initPreloader() {
+  const preloader = document.getElementById('preloader');
+  if (!preloader) return;
+
+  const dismiss = () => {
+    preloader.classList.add('hidden');
+    setTimeout(() => {
+      preloader.remove();
+    }, 600);
+  };
+
+  // Dismiss after load + small delay
+  if (document.readyState === 'complete') {
+    setTimeout(dismiss, 800);
+  } else {
+    window.addEventListener('load', () => {
+      setTimeout(dismiss, 800);
+    });
+  }
+}
+
+// Run preloader immediately (before DOMContentLoaded)
+initPreloader();
+
+// ==========================================
+// LANGUAGE TOGGLE
+// ==========================================
+function initLanguageToggle() {
+  const btn = document.getElementById('langToggle');
+  if (!btn) return;
+
+  const label = btn.querySelector('.toggle-btn__label');
+  const html = document.documentElement;
+
+  // Restore saved language
+  const saved = localStorage.getItem('sanlufer-lang');
+  if (saved && (saved === 'en' || saved === 'es')) {
+    html.setAttribute('data-lang', saved);
+    html.setAttribute('lang', saved);
+    if (label) label.textContent = saved === 'es' ? 'EN' : 'ES';
+  }
+
+  btn.addEventListener('click', () => {
+    const current = html.getAttribute('data-lang') || 'es';
+    const next = current === 'es' ? 'en' : 'es';
+
+    html.setAttribute('data-lang', next);
+    html.setAttribute('lang', next);
+    localStorage.setItem('sanlufer-lang', next);
+
+    // Update button label to show the OTHER language option
+    if (label) label.textContent = next === 'es' ? 'EN' : 'ES';
+  });
+}
+
+// ==========================================
+// THEME TOGGLE
+// ==========================================
+function initThemeToggle() {
+  const btn = document.getElementById('themeToggle');
+  if (!btn) return;
+
+  const html = document.documentElement;
+
+  // Restore saved theme or detect system preference
+  const saved = localStorage.getItem('sanlufer-theme');
+  if (saved && (saved === 'dark' || saved === 'light')) {
+    html.setAttribute('data-theme', saved);
+  } else if (window.matchMedia('(prefers-color-scheme: light)').matches) {
+    html.setAttribute('data-theme', 'light');
+  }
+
+  btn.addEventListener('click', () => {
+    const current = html.getAttribute('data-theme') || 'dark';
+    const next = current === 'dark' ? 'light' : 'dark';
+
+    html.setAttribute('data-theme', next);
+    localStorage.setItem('sanlufer-theme', next);
+
+    // Update meta theme-color
+    const metaTheme = document.querySelector('meta[name="theme-color"]:not([media])') ||
+                      document.querySelector('meta[name="theme-color"]');
+    if (metaTheme) {
+      metaTheme.setAttribute('content', next === 'dark' ? '#0B1120' : '#F8FAFC');
+    }
+  });
+}
+
+// ==========================================
+// NAVBAR SCROLL EFFECT
+// ==========================================
 function initNavbar() {
   const navbar = document.getElementById('navbar');
   if (!navbar) return;
@@ -33,7 +127,9 @@ function initNavbar() {
   }, { passive: true });
 }
 
-// Mobile Menu Toggle
+// ==========================================
+// MOBILE MENU TOGGLE
+// ==========================================
 function initMobileMenu() {
   const toggle = document.getElementById('navToggle');
   const menu = document.getElementById('navMenu');
@@ -58,7 +154,9 @@ function initMobileMenu() {
   });
 }
 
-// Smooth Scroll for Anchor Links
+// ==========================================
+// SMOOTH SCROLL FOR ANCHOR LINKS
+// ==========================================
 function initSmoothScroll() {
   document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
     anchor.addEventListener('click', (e) => {
@@ -81,7 +179,9 @@ function initSmoothScroll() {
   });
 }
 
-// Contact Form Handling
+// ==========================================
+// CONTACT FORM HANDLING
+// ==========================================
 function initContactForm() {
   const form = document.getElementById('contactForm');
   if (!form) return;
@@ -94,7 +194,8 @@ function initContactForm() {
 
     // Show success state
     btn.innerHTML = `
-      <span>¡Mensaje Enviado!</span>
+      <span class="lang-es">¡Mensaje Enviado!</span>
+      <span class="lang-en">Message Sent!</span>
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
     `;
     btn.classList.add('btn--success');
@@ -110,10 +211,42 @@ function initContactForm() {
   });
 }
 
-// Initialize Everything
+// ==========================================
+// BACK TO TOP BUTTON
+// ==========================================
+function initBackToTop() {
+  const btn = document.getElementById('backToTop');
+  if (!btn) return;
+
+  let ticking = false;
+
+  window.addEventListener('scroll', () => {
+    if (!ticking) {
+      requestAnimationFrame(() => {
+        btn.classList.toggle('visible', window.pageYOffset > 500);
+        ticking = false;
+      });
+      ticking = true;
+    }
+  }, { passive: true });
+
+  btn.addEventListener('click', () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  });
+}
+
+// ==========================================
+// INITIALIZE EVERYTHING
+// ==========================================
 document.addEventListener('DOMContentLoaded', () => {
+  initLanguageToggle();
+  initThemeToggle();
   initNavbar();
   initMobileMenu();
   initSmoothScroll();
   initContactForm();
+  initBackToTop();
 });

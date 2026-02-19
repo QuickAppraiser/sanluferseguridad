@@ -1,8 +1,11 @@
 /**
- * Scroll Reveal Animations, Animated Counters, Active Nav Tracking
+ * Scroll Reveal Animations, Animated Counters, Active Nav Tracking,
+ * Typing Text Effect
  */
 
-// Scroll Reveal System
+// ==========================================
+// SCROLL REVEAL SYSTEM
+// ==========================================
 function initScrollReveal() {
   const revealElements = document.querySelectorAll('[data-reveal]');
   if (!revealElements.length) return;
@@ -30,7 +33,9 @@ function initScrollReveal() {
   revealElements.forEach((el) => observer.observe(el));
 }
 
-// Animated Counter System
+// ==========================================
+// ANIMATED COUNTER SYSTEM
+// ==========================================
 function initCounters() {
   const counters = document.querySelectorAll('[data-target]');
   if (!counters.length) return;
@@ -73,7 +78,9 @@ function animateCounter(element) {
   requestAnimationFrame(update);
 }
 
-// Active Navigation Link Tracking
+// ==========================================
+// ACTIVE NAVIGATION LINK TRACKING
+// ==========================================
 function initActiveNav() {
   const sections = document.querySelectorAll('section[id]');
   const navLinks = document.querySelectorAll('.navbar__link');
@@ -99,9 +106,89 @@ function initActiveNav() {
   sections.forEach((section) => navObserver.observe(section));
 }
 
-// Initialize all animations when DOM is ready
+// ==========================================
+// TYPING TEXT EFFECT
+// ==========================================
+function initTypingEffect() {
+  const el = document.getElementById('typingText');
+  if (!el) return;
+
+  const lang = document.documentElement.getAttribute('data-lang') || 'es';
+
+  const wordsES = [
+    'para su Empresa',
+    'con Videovigilancia IA',
+    'Automatización Total',
+    'Cableado Certificado',
+    '24/7 Soporte Técnico',
+  ];
+
+  const wordsEN = [
+    'for your Business',
+    'with AI Surveillance',
+    'Total Automation',
+    'Certified Cabling',
+    '24/7 Tech Support',
+  ];
+
+  let words = lang === 'en' ? wordsEN : wordsES;
+  let wordIndex = 0;
+  let charIndex = 0;
+  let isDeleting = false;
+  let timeout = null;
+
+  // Update words when language changes
+  const langObserver = new MutationObserver(() => {
+    const currentLang = document.documentElement.getAttribute('data-lang') || 'es';
+    words = currentLang === 'en' ? wordsEN : wordsES;
+    // Reset typing
+    if (timeout) clearTimeout(timeout);
+    charIndex = 0;
+    isDeleting = false;
+    el.textContent = '';
+    type();
+  });
+
+  langObserver.observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-lang'],
+  });
+
+  function type() {
+    const currentWord = words[wordIndex];
+
+    if (isDeleting) {
+      el.textContent = currentWord.substring(0, charIndex - 1);
+      charIndex--;
+    } else {
+      el.textContent = currentWord.substring(0, charIndex + 1);
+      charIndex++;
+    }
+
+    let delay = isDeleting ? 40 : 80;
+
+    if (!isDeleting && charIndex === currentWord.length) {
+      delay = 2000; // Pause at end
+      isDeleting = true;
+    } else if (isDeleting && charIndex === 0) {
+      isDeleting = false;
+      wordIndex = (wordIndex + 1) % words.length;
+      delay = 400; // Pause before next word
+    }
+
+    timeout = setTimeout(type, delay);
+  }
+
+  // Small delay before starting
+  timeout = setTimeout(type, 1000);
+}
+
+// ==========================================
+// INITIALIZE ALL ANIMATIONS
+// ==========================================
 document.addEventListener('DOMContentLoaded', () => {
   initScrollReveal();
   initCounters();
   initActiveNav();
+  initTypingEffect();
 });
