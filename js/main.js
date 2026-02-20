@@ -193,8 +193,8 @@ function initContactForm() {
 
     const formData = new FormData(form);
 
-    // Submit via Formspree (replace YOUR_FORM_ID with actual Formspree form ID)
-    fetch('https://formspree.io/f/xyzplaceholder', {
+    // Submit via FormSubmit.co (verify email on first submission — no account needed)
+    fetch('https://formsubmit.co/ajax/ernesto.diaz@sanluferseguridad.com', {
       method: 'POST',
       body: formData,
       headers: { 'Accept': 'application/json' }
@@ -358,8 +358,9 @@ function initSecurityQuiz() {
       if (nextStep) nextStep.classList.add('quiz__step--active');
 
       // Update progress
-      const pct = (currentStep / totalSteps) * 100;
+      const pct = Math.round((currentStep / totalSteps) * 100);
       progressBar.style.width = pct + '%';
+      progressBar.setAttribute('aria-valuenow', pct);
       progressText.textContent = currentStep + ' / ' + totalSteps;
     } else {
       // Show results
@@ -528,6 +529,33 @@ function initPrivacyModal() {
 }
 
 // ==========================================
+// BILINGUAL WHATSAPP LINKS
+// ==========================================
+function initWhatsAppBilingual() {
+  const waLinks = document.querySelectorAll('a[href*="api.whatsapp.com"]');
+  if (!waLinks.length) return;
+
+  const phone = '573206312166';
+  const msgES = 'Hola Sanlufer Seguridad 👋\n\nVi su sitio web y me interesa recibir una cotización profesional para mi empresa.\n\nServicios de interés:\n✅ Videovigilancia con IA\n✅ Automatización de edificios\n✅ Cableado estructurado\n\n¿Podrían agendar una visita técnica gratuita? ¡Gracias!';
+  const msgEN = 'Hello Sanlufer Seguridad 👋\n\nI saw your website and I\'m interested in receiving a professional quote for my business.\n\nServices of interest:\n✅ AI Video Surveillance\n✅ Building Automation\n✅ Structured Cabling\n\nCould you schedule a free technical visit? Thank you!';
+
+  function updateLinks() {
+    const lang = document.documentElement.getAttribute('data-lang') || 'es';
+    const msg = lang === 'en' ? msgEN : msgES;
+    const url = 'https://api.whatsapp.com/send?phone=' + phone + '&text=' + encodeURIComponent(msg);
+    waLinks.forEach(function(link) { link.setAttribute('href', url); });
+  }
+
+  updateLinks();
+
+  // Update when language changes
+  new MutationObserver(updateLinks).observe(document.documentElement, {
+    attributes: true,
+    attributeFilter: ['data-lang']
+  });
+}
+
+// ==========================================
 // INITIALIZE EVERYTHING
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -544,4 +572,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initDashboardTimestamps();
   initCookieConsent();
   initPrivacyModal();
+  initWhatsAppBilingual();
 });

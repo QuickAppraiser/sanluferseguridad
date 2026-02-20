@@ -2351,6 +2351,27 @@ noscript .noscript-warning {
   color: var(--color-text-secondary);
 }
 
+.contact__map {
+  margin-top: var(--space-md);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+}
+
+.contact__map iframe {
+  display: block;
+  width: 100%;
+  height: 180px;
+  border: 0;
+  border-radius: var(--radius-lg);
+  filter: brightness(0.85) contrast(1.1);
+  transition: filter var(--transition-normal);
+}
+
+.contact__map iframe:hover {
+  filter: brightness(1) contrast(1);
+}
+
 .contact__social {
   display: flex;
   gap: var(--space-sm);
