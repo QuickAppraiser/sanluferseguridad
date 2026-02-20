@@ -894,6 +894,7 @@ noscript .noscript-warning {
 }
 
 .hero__title--accent {
+  color: var(--color-cyan-400);
   background: linear-gradient(135deg, var(--color-cyan-400), var(--color-cyan-300));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -928,35 +929,6 @@ noscript .noscript-warning {
   gap: var(--space-sm);
   justify-content: center;
   margin-bottom: var(--space-3xl);
-}
-
-.hero__stats {
-  display: flex;
-  justify-content: center;
-  gap: var(--space-2xl);
-  flex-wrap: wrap;
-}
-
-.hero__stat {
-  text-align: center;
-}
-
-.hero__stat-number {
-  display: block;
-  font-family: var(--font-heading);
-  font-size: clamp(2rem, 3vw, 2.5rem);
-  font-weight: 700;
-  color: var(--color-cyan-400);
-  line-height: 1;
-}
-
-.hero__stat-label {
-  display: block;
-  font-size: var(--fs-xs);
-  color: var(--color-text-secondary);
-  margin-top: 0.25rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
 }
 
 .hero__scroll-indicator {
@@ -1914,6 +1886,7 @@ noscript .noscript-warning {
   font-family: var(--font-heading);
   font-size: 2.5rem;
   font-weight: 700;
+  color: var(--color-cyan-400);
   background: linear-gradient(135deg, var(--color-cyan-400), var(--color-cyan-500));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -2080,6 +2053,29 @@ noscript .noscript-warning {
 .brands__carousel {
   margin-top: var(--space-xl);
   position: relative;
+}
+
+.brands__pause {
+  position: absolute;
+  top: -2.5rem;
+  right: 0;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  border-radius: var(--border-radius-sm);
+  padding: 0.25rem 0.5rem;
+  cursor: pointer;
+  z-index: 2;
+  transition: color var(--transition-fast), border-color var(--transition-fast);
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: var(--fs-xs);
+}
+
+.brands__pause:hover {
+  color: var(--color-cyan-400);
+  border-color: var(--color-cyan-400);
 }
 
 .brands__carousel::before,
@@ -2353,7 +2349,7 @@ noscript .noscript-warning {
 
 .contact__map {
   margin-top: var(--space-md);
-  border-radius: var(--radius-lg);
+  border-radius: var(--border-radius-lg);
   overflow: hidden;
   border: 1px solid var(--glass-border);
 }
@@ -2363,9 +2359,9 @@ noscript .noscript-warning {
   width: 100%;
   height: 180px;
   border: 0;
-  border-radius: var(--radius-lg);
+  border-radius: var(--border-radius-lg);
   filter: brightness(0.85) contrast(1.1);
-  transition: filter var(--transition-normal);
+  transition: filter var(--transition-base);
 }
 
 .contact__map iframe:hover {
@@ -3481,7 +3477,7 @@ body.has-emergency-bar .hero {
 }
 
 /* ========================================
-   26. SCROLL REVEAL ANIMATIONS
+   27. SCROLL REVEAL ANIMATIONS
    ======================================== */
 [data-reveal] {
   opacity: 0;
@@ -3490,10 +3486,8 @@ body.has-emergency-bar .hero {
 }
 
 [data-reveal="up"] { transform: translateY(40px); }
-[data-reveal="down"] { transform: translateY(-40px); }
 [data-reveal="left"] { transform: translateX(-40px); }
 [data-reveal="right"] { transform: translateX(40px); }
-[data-reveal="scale"] { transform: scale(0.9); }
 
 [data-reveal].revealed {
   opacity: 1;
@@ -3600,6 +3594,11 @@ body.has-emergency-bar .hero {
   color: var(--color-cyan-400);
   text-decoration: underline;
 }
+.cookie-consent__actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
 .cookie-consent__btn {
   padding: 0.5rem 1.5rem;
   background: var(--color-cyan-400);
@@ -3611,13 +3610,18 @@ body.has-emergency-bar .hero {
   cursor: pointer;
   white-space: nowrap;
 }
+.cookie-consent__btn--decline {
+  background: transparent;
+  color: var(--color-text-secondary);
+  border: 1px solid var(--color-border);
+}
 [data-theme="light"] .cookie-consent {
   background: rgba(248, 250, 252, 0.95);
   border-top-color: rgba(0,0,0,0.1);
 }
 
 /* ========================================
-   27. REDUCED MOTION
+   28. REDUCED MOTION
    ======================================== */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

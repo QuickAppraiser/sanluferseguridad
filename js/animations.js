@@ -82,9 +82,23 @@ function animateCounter(element) {
 // ACTIVE NAVIGATION LINK TRACKING
 // ==========================================
 function initActiveNav() {
-  const sections = document.querySelectorAll('section[id]');
   const navLinks = document.querySelectorAll('.navbar__link');
-  if (!sections.length || !navLinks.length) return;
+  if (!navLinks.length) return;
+
+  // Only track sections that have a corresponding nav link
+  const navIds = new Set();
+  navLinks.forEach(function(link) {
+    var href = link.getAttribute('href');
+    if (href && href.startsWith('#')) navIds.add(href.slice(1));
+  });
+
+  const sections = [];
+  navIds.forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) sections.push(el);
+  });
+
+  if (!sections.length) return;
 
   const navObserver = new IntersectionObserver(
     (entries) => {
@@ -103,7 +117,7 @@ function initActiveNav() {
     }
   );
 
-  sections.forEach((section) => navObserver.observe(section));
+  sections.forEach(function(section) { navObserver.observe(section); });
 }
 
 // ==========================================

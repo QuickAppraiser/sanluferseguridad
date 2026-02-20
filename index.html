@@ -24,7 +24,7 @@
   <meta property="og:title" content="Sanlufer Seguridad | Cámaras de Seguridad y Videovigilancia en toda Colombia">
   <meta property="og:description" content="Expertos en videovigilancia con IA, automatización y cableado estructurado. Servicio nacional: Bogotá, Medellín, Cali, Armenia, Pereira, Barranquilla, Cartagena, Bucaramanga. +15 años. Cotización gratis.">
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://sanluferseguridad.com">
+  <meta property="og:url" content="https://sanluferseguridad.com/">
   <meta property="og:image" content="https://sanluferseguridad.com/img/hero-bg.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
@@ -50,8 +50,23 @@
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='4' y1='2' x2='28' y2='32'%3E%3Cstop stop-color='%2322D3EE'/%3E%3Cstop offset='1' stop-color='%2306B6D4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M16 2L4 8v8c0 7.73 5.12 14.95 12 16.73C22.88 30.95 28 23.73 28 16V8L16 2z' fill='%230B1120' stroke='url(%23g)' stroke-width='1.5'/%3E%3Cpath d='M12 16l3 3 5-6' stroke='%2322D3EE' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E">
 
+  <!-- Web App Manifest -->
+  <link rel="manifest" href="manifest.json">
+
   <!-- Preload LCP image -->
   <link rel="preload" as="image" href="img/hero-bg.jpg">
+
+  <!-- Prevent FOUC: restore saved theme/lang before CSS loads -->
+  <script>
+    (function(){
+      var t=localStorage.getItem('sanlufer-theme');
+      var l=localStorage.getItem('sanlufer-lang');
+      var d=document.documentElement;
+      if(t==='light'||t==='dark')d.setAttribute('data-theme',t);
+      else if(window.matchMedia&&window.matchMedia('(prefers-color-scheme:light)').matches)d.setAttribute('data-theme','light');
+      if(l==='en'||l==='es'){d.setAttribute('data-lang',l);d.setAttribute('lang',l);}
+    })();
+  </script>
 
   <!-- Styles -->
   <link rel="stylesheet" href="css/styles.css">
@@ -251,7 +266,7 @@
         <span class="lang-es">Seguridad Inteligente</span>
         <span class="lang-en">Intelligent Security</span><br>
         <span class="hero__title--accent" id="typingText"></span>
-        <span class="hero__cursor">|</span>
+        <span class="hero__cursor" aria-hidden="true">|</span>
       </h1>
 
       <p class="hero__subtitle">
@@ -311,7 +326,7 @@
 
   <!-- ========== SERVICES ========== -->
   <section id="servicios" class="services">
-    <div class="section-bg-dots"></div>
+    <div class="section-bg-dots" aria-hidden="true"></div>
     <div class="container">
       <header class="section-header" data-reveal="up">
         <span class="section-tag"><span class="lang-es">Nuestros Servicios</span><span class="lang-en">Our Services</span></span>
@@ -617,7 +632,7 @@
       <div class="quiz" id="securityQuiz" data-reveal="up" role="region" aria-label="Security Assessment Quiz">
         <!-- Progress Bar -->
         <div class="quiz__progress">
-          <div class="quiz__progress-bar" id="quizProgress" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width:25%"></div>
+          <div class="quiz__progress-bar" id="quizProgress" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" aria-valuetext="Paso 1 de 4 / Step 1 of 4" style="width:25%"></div>
           <span class="quiz__progress-text" id="quizProgressText">1 / 4</span>
         </div>
 
@@ -746,7 +761,7 @@
 
   <!-- ========== TESTIMONIALS ========== -->
   <section id="testimonios" class="testimonials">
-    <div class="section-bg-gradient"></div>
+    <div class="section-bg-gradient" aria-hidden="true"></div>
     <div class="container">
       <header class="section-header" data-reveal="up">
         <span class="section-tag"><span class="lang-es">Testimonios</span><span class="lang-en">Testimonials</span></span>
@@ -789,7 +804,11 @@
         <h2><span class="lang-es">Trabajamos con las <span class="text-accent">Mejores Marcas</span></span><span class="lang-en">We work with the <span class="text-accent">Best Brands</span></span></h2>
       </header>
     </div>
-    <div class="brands__carousel">
+    <div class="brands__carousel" aria-label="Brand partners carousel" role="region">
+      <button class="brands__pause" id="brandsPause" aria-label="Pause carousel">
+        <svg class="brands__pause-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+        <svg class="brands__play-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" style="display:none"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      </button>
       <div class="brands__track">
         <div class="brands__item"><span>Hikvision</span></div>
         <div class="brands__item"><span>Dahua</span></div>
@@ -1076,26 +1095,26 @@
         <form class="contact__form glass-card" data-reveal="right" id="contactForm">
           <!-- FormSubmit.co config -->
           <input type="hidden" name="_subject" value="Nueva cotización desde sanluferseguridad.com">
-          <input type="hidden" name="_captcha" value="false">
+          <input type="hidden" name="_captcha" value="true">
           <input type="hidden" name="_template" value="table">
           <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
           <div class="form-group">
             <label for="nombre"><span class="lang-es">Nombre completo</span><span class="lang-en">Full name</span></label>
-            <input type="text" id="nombre" name="nombre" required placeholder="">
+            <input type="text" id="nombre" name="nombre" required autocomplete="name" placeholder="">
           </div>
           <div class="form-row">
             <div class="form-group">
               <label for="email"><span class="lang-es">Correo electrónico</span><span class="lang-en">Email</span></label>
-              <input type="email" id="email" name="email" required placeholder="">
+              <input type="email" id="email" name="email" required autocomplete="email" placeholder="">
             </div>
             <div class="form-group">
               <label for="telefono"><span class="lang-es">Teléfono</span><span class="lang-en">Phone</span></label>
-              <input type="tel" id="telefono" name="telefono" placeholder="">
+              <input type="tel" id="telefono" name="telefono" autocomplete="tel" placeholder="">
             </div>
           </div>
           <div class="form-group">
             <label for="servicio"><span class="lang-es">Servicio de interés</span><span class="lang-en">Service of interest</span></label>
-            <select id="servicio" name="servicio">
+            <select id="servicio" name="servicio" required>
               <option value="">Seleccione / Select a service</option>
               <option value="videovigilancia">Videovigilancia / Video Surveillance</option>
               <option value="automatizacion">Automatización / Building Automation</option>
@@ -1172,11 +1191,11 @@
   <!-- ========== PRIVACY POLICY MODAL ========== -->
   <div class="privacy-modal" id="privacyModal">
     <div class="privacy-modal__overlay"></div>
-    <div class="privacy-modal__content">
+    <div class="privacy-modal__content" role="dialog" aria-modal="true" aria-labelledby="privacyTitle">
       <button class="privacy-modal__close" aria-label="Cerrar / Close">
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
       </button>
-      <h2><span class="lang-es">Política de Privacidad y Tratamiento de Datos</span><span class="lang-en">Privacy Policy & Data Processing</span></h2>
+      <h2 id="privacyTitle"><span class="lang-es">Política de Privacidad y Tratamiento de Datos</span><span class="lang-en">Privacy Policy & Data Processing</span></h2>
       <h3><span class="lang-es">Responsable del Tratamiento</span><span class="lang-en">Data Controller</span></h3>
       <p><span class="lang-es">Sanlufer Seguridad SAS, con sede en Armenia, Quindío, Colombia. Correo: ernesto.diaz@sanluferseguridad.com. Teléfono: +57 320 631 2166.</span><span class="lang-en">Sanlufer Seguridad SAS, based in Armenia, Quindío, Colombia. Email: ernesto.diaz@sanluferseguridad.com. Phone: +57 320 631 2166.</span></p>
       <h3><span class="lang-es">Datos Recopilados</span><span class="lang-en">Data Collected</span></h3>
@@ -1196,9 +1215,14 @@
       <span class="lang-es">Este sitio usa almacenamiento local para recordar sus preferencias. Al continuar, acepta nuestra <a href="#" data-privacy>Política de Privacidad</a>.</span>
       <span class="lang-en">This site uses local storage to remember your preferences. By continuing, you accept our <a href="#" data-privacy>Privacy Policy</a>.</span>
     </p>
-    <button class="cookie-consent__btn" id="cookieAccept">
-      <span class="lang-es">Aceptar</span><span class="lang-en">Accept</span>
-    </button>
+    <div class="cookie-consent__actions">
+      <button class="cookie-consent__btn cookie-consent__btn--decline" id="cookieDecline">
+        <span class="lang-es">Rechazar</span><span class="lang-en">Decline</span>
+      </button>
+      <button class="cookie-consent__btn" id="cookieAccept">
+        <span class="lang-es">Aceptar</span><span class="lang-en">Accept</span>
+      </button>
+    </div>
   </div>
 
   <!-- Scripts -->

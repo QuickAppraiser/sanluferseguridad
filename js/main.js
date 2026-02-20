@@ -125,29 +125,38 @@ function initMobileMenu() {
 
   const links = menu.querySelectorAll('.navbar__link');
 
+  function closeMenu() {
+    menu.classList.remove('navbar__nav--open');
+    toggle.classList.remove('navbar__toggle--active');
+    toggle.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('no-scroll');
+  }
+
   toggle.addEventListener('click', () => {
     const isOpen = menu.classList.toggle('navbar__nav--open');
     toggle.classList.toggle('navbar__toggle--active');
     toggle.setAttribute('aria-expanded', isOpen);
     document.body.classList.toggle('no-scroll', isOpen);
+    if (isOpen) {
+      var firstLink = menu.querySelector('.navbar__link');
+      if (firstLink) firstLink.focus();
+    }
   });
 
-  links.forEach((link) => {
-    link.addEventListener('click', () => {
-      menu.classList.remove('navbar__nav--open');
-      toggle.classList.remove('navbar__toggle--active');
-      toggle.setAttribute('aria-expanded', 'false');
-      document.body.classList.remove('no-scroll');
-    });
+  links.forEach(function(link) {
+    link.addEventListener('click', closeMenu);
   });
 
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && menu.classList.contains('navbar__nav--open')) {
-      menu.classList.remove('navbar__nav--open');
-      toggle.classList.remove('navbar__toggle--active');
-      toggle.setAttribute('aria-expanded', 'false');
-      document.body.classList.remove('no-scroll');
-      toggle.focus();
+  // Focus trap + Escape
+  document.addEventListener('keydown', function(e) {
+    if (!menu.classList.contains('navbar__nav--open')) return;
+    if (e.key === 'Escape') { closeMenu(); toggle.focus(); return; }
+    if (e.key === 'Tab') {
+      var focusable = menu.querySelectorAll('a, button');
+      var first = focusable[0];
+      var last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
     }
   });
 }
@@ -164,7 +173,7 @@ function initSmoothScroll() {
       const target = document.querySelector(href);
       if (target) {
         e.preventDefault();
-        const headerOffset = 80;
+        const headerOffset = document.body.classList.contains('has-emergency-bar') ? 116 : 80;
         const elementPosition = target.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.scrollY - headerOffset;
 
@@ -361,6 +370,7 @@ function initSecurityQuiz() {
       const pct = Math.round((currentStep / totalSteps) * 100);
       progressBar.style.width = pct + '%';
       progressBar.setAttribute('aria-valuenow', pct);
+      progressBar.setAttribute('aria-valuetext', 'Paso ' + currentStep + ' de ' + totalSteps + ' / Step ' + currentStep + ' of ' + totalSteps);
       progressText.textContent = currentStep + ' / ' + totalSteps;
     } else {
       // Show results
@@ -372,8 +382,14 @@ function initSecurityQuiz() {
     // Hide progress
     quiz.querySelector('.quiz__progress').style.display = 'none';
 
-    // Calculate score (0-100)
-    // Max possible: 5 + 8 + 3 + 6 = 22, Min: 0 + 0 + 1 + 0 = 1
+    // Calculate security level (0-100)
+    // Score measures existing protection: higher score = better protected
+    // Step1 (property type): NOT about protection, so we subtract it
+    // Step2 (current security): 0=none, 2=basic, 5=intermediate, 8=professional
+    // Step3 (concern): 1-3, lower = more urgent need
+    // Step4 (urgency): 0=exploring, 2=next month, 4=this week, 6=immediate
+    // Effective protection score = step2 score only (0-8), normalized
+    // But we use total as a rough proxy: max=22, min=1
     const maxScore = 22;
     const normalizedScore = Math.min(Math.round((totalScore / maxScore) * 100), 100);
 
@@ -485,14 +501,22 @@ function initCookieConsent() {
   const consent = document.getElementById('cookieConsent');
   if (!consent) return;
 
-  if (localStorage.getItem('sanlufer-cookies-accepted')) return;
+  if (localStorage.getItem('sanlufer-cookies-accepted') || localStorage.getItem('sanlufer-cookies-declined')) return;
 
-  setTimeout(() => { consent.classList.add('visible'); }, 2000);
+  setTimeout(function() { consent.classList.add('visible'); }, 2000);
 
-  const btn = document.getElementById('cookieAccept');
-  if (btn) {
-    btn.addEventListener('click', () => {
+  var acceptBtn = document.getElementById('cookieAccept');
+  var declineBtn = document.getElementById('cookieDecline');
+
+  if (acceptBtn) {
+    acceptBtn.addEventListener('click', function() {
       localStorage.setItem('sanlufer-cookies-accepted', '1');
+      consent.classList.remove('visible');
+    });
+  }
+  if (declineBtn) {
+    declineBtn.addEventListener('click', function() {
+      localStorage.setItem('sanlufer-cookies-declined', '1');
       consent.classList.remove('visible');
     });
   }
@@ -505,26 +529,44 @@ function initPrivacyModal() {
   const modal = document.getElementById('privacyModal');
   if (!modal) return;
 
-  document.querySelectorAll('[data-privacy]').forEach(link => {
-    link.addEventListener('click', (e) => {
+  var lastFocused = null;
+  var content = modal.querySelector('.privacy-modal__content');
+
+  document.querySelectorAll('[data-privacy]').forEach(function(link) {
+    link.addEventListener('click', function(e) {
       e.preventDefault();
+      lastFocused = document.activeElement;
       modal.classList.add('active');
       document.body.classList.add('no-scroll');
+      var closeBtn = modal.querySelector('.privacy-modal__close');
+      if (closeBtn) closeBtn.focus();
     });
   });
 
-  const closeBtn = modal.querySelector('.privacy-modal__close');
-  const overlay = modal.querySelector('.privacy-modal__overlay');
+  var closeBtn = modal.querySelector('.privacy-modal__close');
+  var overlay = modal.querySelector('.privacy-modal__overlay');
 
   function closeModal() {
     modal.classList.remove('active');
     document.body.classList.remove('no-scroll');
+    if (lastFocused) lastFocused.focus();
   }
 
   if (closeBtn) closeBtn.addEventListener('click', closeModal);
   if (overlay) overlay.addEventListener('click', closeModal);
-  document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+
+  // Escape + focus trap
+  document.addEventListener('keydown', function(e) {
+    if (!modal.classList.contains('active')) return;
+    if (e.key === 'Escape') { closeModal(); return; }
+    if (e.key === 'Tab' && content) {
+      var focusable = content.querySelectorAll('a, button, [tabindex]:not([tabindex="-1"])');
+      if (!focusable.length) return;
+      var first = focusable[0];
+      var last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    }
   });
 }
 
@@ -556,6 +598,27 @@ function initWhatsAppBilingual() {
 }
 
 // ==========================================
+// BRANDS CAROUSEL PAUSE CONTROL
+// ==========================================
+function initBrandsPause() {
+  var btn = document.getElementById('brandsPause');
+  var track = document.querySelector('.brands__track');
+  if (!btn || !track) return;
+
+  var paused = false;
+  var pauseIcon = btn.querySelector('.brands__pause-icon');
+  var playIcon = btn.querySelector('.brands__play-icon');
+
+  btn.addEventListener('click', function() {
+    paused = !paused;
+    track.style.animationPlayState = paused ? 'paused' : 'running';
+    btn.setAttribute('aria-label', paused ? 'Play carousel' : 'Pause carousel');
+    if (pauseIcon) pauseIcon.style.display = paused ? 'none' : '';
+    if (playIcon) playIcon.style.display = paused ? '' : 'none';
+  });
+}
+
+// ==========================================
 // INITIALIZE EVERYTHING
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -573,4 +636,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initCookieConsent();
   initPrivacyModal();
   initWhatsAppBilingual();
+  initBrandsPause();
 });
