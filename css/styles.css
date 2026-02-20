@@ -2481,7 +2481,7 @@ noscript .noscript-warning {
 
 /* Form validation visual feedback */
 .form-group input:invalid:not(:placeholder-shown),
-.form-group select:invalid:not([value=""]),
+.form-group select:invalid,
 .form-group textarea:invalid:not(:placeholder-shown) {
   border-color: #EF4444;
 }

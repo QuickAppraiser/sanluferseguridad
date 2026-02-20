@@ -45,6 +45,15 @@ function initLanguageToggle() {
   var currentLang = html.getAttribute('data-lang') || 'es';
   if (label) label.textContent = currentLang === 'es' ? 'EN' : 'ES';
 
+  function updateAriaLabels(lang) {
+    document.querySelectorAll('[data-aria-' + lang + ']').forEach(function(el) {
+      el.setAttribute('aria-label', el.getAttribute('data-aria-' + lang));
+    });
+  }
+
+  // Set aria-labels for initial language
+  updateAriaLabels(currentLang);
+
   btn.addEventListener('click', () => {
     const current = html.getAttribute('data-lang') || 'es';
     const next = current === 'es' ? 'en' : 'es';
@@ -55,6 +64,9 @@ function initLanguageToggle() {
 
     // Update button label to show the OTHER language option
     if (label) label.textContent = next === 'es' ? 'EN' : 'ES';
+
+    // Update bilingual aria-labels
+    updateAriaLabels(next);
   });
 }
 
@@ -464,8 +476,8 @@ function initSecurityQuiz() {
 
       // Show progress and first step
       quiz.querySelector('.quiz__progress').style.display = '';
-      progressBar.style.width = '25%';
-      progressText.textContent = '1 / 4';
+      progressBar.style.width = (100 / totalSteps) + '%';
+      progressText.textContent = '1 / ' + totalSteps;
 
       steps.forEach((s) => s.classList.remove('quiz__step--active'));
       steps[0].classList.add('quiz__step--active');
