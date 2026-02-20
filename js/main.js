@@ -102,24 +102,12 @@ function initNavbar() {
   const navbar = document.getElementById('navbar');
   if (!navbar) return;
 
-  let lastScroll = 0;
   let ticking = false;
 
   window.addEventListener('scroll', () => {
     if (!ticking) {
       requestAnimationFrame(() => {
-        const currentScroll = window.pageYOffset;
-
-        navbar.classList.toggle('navbar--scrolled', currentScroll > 80);
-
-        // Hide on scroll down (after 300px), show on scroll up
-        if (currentScroll > lastScroll && currentScroll > 300) {
-          navbar.classList.add('navbar--hidden');
-        } else {
-          navbar.classList.remove('navbar--hidden');
-        }
-
-        lastScroll = currentScroll;
+        navbar.classList.toggle('navbar--scrolled', window.pageYOffset > 80);
         ticking = false;
       });
       ticking = true;
