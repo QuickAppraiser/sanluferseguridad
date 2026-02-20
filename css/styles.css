@@ -2397,18 +2397,54 @@ noscript .noscript-warning {
   border: 1px solid var(--glass-border);
 }
 
-.contact__map iframe {
-  display: block;
+.colombia-map {
   width: 100%;
-  height: 180px;
-  border: 0;
+  height: 320px;
   border-radius: var(--border-radius-lg);
-  filter: brightness(0.85) contrast(1.1);
-  transition: filter var(--transition-base);
+  z-index: 1;
 }
 
-.contact__map iframe:hover {
-  filter: brightness(1) contrast(1);
+.colombia-map .leaflet-popup-content-wrapper {
+  background: var(--color-navy-800);
+  color: var(--color-text-primary);
+  border-radius: var(--border-radius-sm);
+  box-shadow: 0 4px 20px rgba(0,0,0,.4);
+  font-family: var(--font-body);
+  font-size: var(--fs-small);
+}
+
+.colombia-map .leaflet-popup-tip { background: var(--color-navy-800); }
+
+[data-theme="light"] .colombia-map .leaflet-popup-content-wrapper { background: #fff; color: #1e293b; }
+[data-theme="light"] .colombia-map .leaflet-popup-tip { background: #fff; }
+
+.map-marker {
+  width: 14px;
+  height: 14px;
+  background: var(--color-cyan-400);
+  border: 2px solid rgba(34,211,238,.4);
+  border-radius: 50%;
+  box-shadow: 0 0 12px rgba(34,211,238,.5);
+  animation: mapPulse 2s ease-in-out infinite;
+}
+
+.map-marker--hq {
+  width: 20px;
+  height: 20px;
+  background: var(--color-cyan-300);
+  border: 3px solid rgba(34,211,238,.6);
+  box-shadow: 0 0 20px rgba(34,211,238,.7), 0 0 40px rgba(34,211,238,.3);
+  animation: mapPulseHQ 1.5s ease-in-out infinite;
+}
+
+@keyframes mapPulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(34,211,238,.5); transform: scale(1); }
+  50% { box-shadow: 0 0 20px rgba(34,211,238,.8); transform: scale(1.15); }
+}
+
+@keyframes mapPulseHQ {
+  0%, 100% { box-shadow: 0 0 20px rgba(34,211,238,.7), 0 0 40px rgba(34,211,238,.3); transform: scale(1); }
+  50% { box-shadow: 0 0 30px rgba(34,211,238,1), 0 0 60px rgba(34,211,238,.5); transform: scale(1.2); }
 }
 
 .contact__social {

@@ -46,6 +46,9 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
 
+  <!-- Leaflet Map -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='4' y1='2' x2='28' y2='32'%3E%3Cstop stop-color='%2322D3EE'/%3E%3Cstop offset='1' stop-color='%2306B6D4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M16 2L4 8v8c0 7.73 5.12 14.95 12 16.73C22.88 30.95 28 23.73 28 16V8L16 2z' fill='%230B1120' stroke='url(%23g)' stroke-width='1.5'/%3E%3Cpath d='M12 16l3 3 5-6' stroke='%2322D3EE' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E">
 
@@ -1085,7 +1088,7 @@
             <div><h4><span class="lang-es">Horario</span><span class="lang-en">Hours</span></h4><span class="contact__info-text"><span class="lang-es">Lun-Vie: 8AM-6PM | Sáb: 8AM-1PM</span><span class="lang-en">Mon-Fri: 8AM-6PM | Sat: 8AM-1PM</span></span></div>
           </div>
           <div class="contact__map">
-            <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d127235.79686806878!2d-75.74898!3d4.5339!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x8e38f5c5ceae387d%3A0x78dba0ba21bf602!2sArmenia%2C%20Quind%C3%ADo%2C%20Colombia!5e0!3m2!1ses!2sco!4v1708300000000" width="100%" height="180" style="border:0" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" title="Sanlufer Seguridad - Armenia, Quindío"></iframe>
+            <div id="colombiaMap" class="colombia-map" role="img" aria-label="Mapa de cobertura nacional de Sanlufer Seguridad en Colombia"></div>
           </div>
           <div class="contact__social">
             <a href="https://facebook.com/sanluferseguridad" target="_blank" rel="noopener" aria-label="Sanlufer Seguridad en Facebook" class="contact__social-link"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
@@ -1228,6 +1231,7 @@
   </div>
 
   <!-- Scripts -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
   <script src="js/animations.js" defer></script>
   <script src="js/main.js" defer></script>
 </body>

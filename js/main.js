@@ -637,6 +637,86 @@ function initBrandsPause() {
 // ==========================================
 // INITIALIZE EVERYTHING
 // ==========================================
+// ==========================================
+// COLOMBIA COVERAGE MAP (Leaflet)
+// ==========================================
+function initColombiaMap() {
+  var el = document.getElementById('colombiaMap');
+  if (!el || typeof L === 'undefined') return;
+
+  var isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+
+  var darkTiles = 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png';
+  var lightTiles = 'https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png';
+  var attr = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>';
+
+  var map = L.map(el, {
+    center: [5.5, -74.0],
+    zoom: 6,
+    scrollWheelZoom: false,
+    zoomControl: false,
+    attributionControl: true
+  });
+
+  L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+  var tileLayer = L.tileLayer(isDark ? darkTiles : lightTiles, {
+    attribution: attr,
+    maxZoom: 18
+  }).addTo(map);
+
+  // Switch tiles when theme changes
+  new MutationObserver(function() {
+    var nowDark = document.documentElement.getAttribute('data-theme') !== 'light';
+    tileLayer.setUrl(nowDark ? darkTiles : lightTiles);
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+
+  var lang = document.documentElement.getAttribute('data-lang') || 'es';
+
+  var cities = [
+    { name: 'Armenia (Sede Principal)', nameEn: 'Armenia (HQ)', lat: 4.534, lng: -75.681, hq: true },
+    { name: 'Bogotá', nameEn: 'Bogotá', lat: 4.711, lng: -74.072 },
+    { name: 'Medellín', nameEn: 'Medellín', lat: 6.251, lng: -75.564 },
+    { name: 'Cali', nameEn: 'Cali', lat: 3.452, lng: -76.532 },
+    { name: 'Pereira', nameEn: 'Pereira', lat: 4.814, lng: -75.696 },
+    { name: 'Manizales', nameEn: 'Manizales', lat: 5.070, lng: -75.521 },
+    { name: 'Barranquilla', nameEn: 'Barranquilla', lat: 10.964, lng: -74.781 },
+    { name: 'Cartagena', nameEn: 'Cartagena', lat: 10.391, lng: -75.514 },
+    { name: 'Bucaramanga', nameEn: 'Bucaramanga', lat: 7.120, lng: -73.123 },
+    { name: 'Pasto', nameEn: 'Pasto', lat: 1.214, lng: -77.281 }
+  ];
+
+  var markers = [];
+
+  cities.forEach(function(city) {
+    var size = city.hq ? 20 : 14;
+    var icon = L.divIcon({
+      className: '',
+      html: '<div class="map-marker' + (city.hq ? ' map-marker--hq' : '') + '"></div>',
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size / 2]
+    });
+
+    var label = lang === 'en' ? city.nameEn : city.name;
+    var marker = L.marker([city.lat, city.lng], { icon: icon })
+      .bindPopup('<strong>' + label + '</strong>' + (city.hq ? '<br><span style="color:#22d3ee;font-size:11px">Sanlufer Seguridad</span>' : ''))
+      .addTo(map);
+
+    markers.push({ marker: marker, city: city });
+
+    if (city.hq) marker.openPopup();
+  });
+
+  // Update popup labels on language change
+  new MutationObserver(function() {
+    var newLang = document.documentElement.getAttribute('data-lang') || 'es';
+    markers.forEach(function(m) {
+      var label = newLang === 'en' ? m.city.nameEn : m.city.name;
+      m.marker.setPopupContent('<strong>' + label + '</strong>' + (m.city.hq ? '<br><span style="color:#22d3ee;font-size:11px">Sanlufer Seguridad</span>' : ''));
+    });
+  }).observe(document.documentElement, { attributes: true, attributeFilter: ['data-lang'] });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   initLanguageToggle();
   initThemeToggle();
@@ -653,4 +733,5 @@ document.addEventListener('DOMContentLoaded', () => {
   initPrivacyModal();
   initWhatsAppBilingual();
   initBrandsPause();
+  initColombiaMap();
 });
