@@ -41,13 +41,9 @@ function initLanguageToggle() {
   const label = btn.querySelector('.toggle-btn__label');
   const html = document.documentElement;
 
-  // Restore saved language
-  const saved = localStorage.getItem('sanlufer-lang');
-  if (saved && (saved === 'en' || saved === 'es')) {
-    html.setAttribute('data-lang', saved);
-    html.setAttribute('lang', saved);
-    if (label) label.textContent = saved === 'es' ? 'EN' : 'ES';
-  }
+  // Sync button label with current language (inline script already restored lang)
+  var currentLang = html.getAttribute('data-lang') || 'es';
+  if (label) label.textContent = currentLang === 'es' ? 'EN' : 'ES';
 
   btn.addEventListener('click', () => {
     const current = html.getAttribute('data-lang') || 'es';
@@ -173,7 +169,8 @@ function initSmoothScroll() {
       const target = document.querySelector(href);
       if (target) {
         e.preventDefault();
-        const headerOffset = document.body.classList.contains('has-emergency-bar') ? 116 : 80;
+        var navbar = document.getElementById('navbar');
+        var headerOffset = navbar ? navbar.offsetHeight : 80;
         const elementPosition = target.getBoundingClientRect().top;
         const offsetPosition = elementPosition + window.scrollY - headerOffset;
 
@@ -199,6 +196,7 @@ function initContactForm() {
     const btn = form.querySelector('button[type="submit"]');
     const originalHTML = btn.innerHTML;
     btn.disabled = true;
+    btn.innerHTML = '<span class="lang-es">Enviando...</span><span class="lang-en">Sending...</span> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10" stroke-dasharray="32" stroke-dashoffset="32"><animate attributeName="stroke-dashoffset" dur="1s" values="32;0" repeatCount="indefinite"/></circle></svg>';
 
     const formData = new FormData(form);
 
@@ -370,7 +368,8 @@ function initSecurityQuiz() {
       const pct = Math.round((currentStep / totalSteps) * 100);
       progressBar.style.width = pct + '%';
       progressBar.setAttribute('aria-valuenow', pct);
-      progressBar.setAttribute('aria-valuetext', 'Paso ' + currentStep + ' de ' + totalSteps + ' / Step ' + currentStep + ' of ' + totalSteps);
+      var quizLang = document.documentElement.getAttribute('data-lang') || 'es';
+      progressBar.setAttribute('aria-valuetext', quizLang === 'en' ? 'Step ' + currentStep + ' of ' + totalSteps : 'Paso ' + currentStep + ' de ' + totalSteps);
       progressText.textContent = currentStep + ' / ' + totalSteps;
     } else {
       // Show results
@@ -405,7 +404,7 @@ function initSecurityQuiz() {
 
     // Animate number
     const scoreNum = document.getElementById('quizScoreNumber');
-    animateScoreNumber(scoreNum, normalizedScore);
+    if (scoreNum) animateScoreNumber(scoreNum, normalizedScore);
 
     // Set result text
     const lang = document.documentElement.getAttribute('data-lang') || 'es';
@@ -478,16 +477,21 @@ function initSecurityQuiz() {
 // LIVE CAMERA DASHBOARD TIMESTAMPS
 // ==========================================
 function initDashboardTimestamps() {
-  const timeEls = document.querySelectorAll('.cam-overlay__time');
+  var timeEls = document.querySelectorAll('.cam-overlay__time');
   if (!timeEls.length) return;
 
+  // Give each camera a slight time offset for realism
+  var offsets = [0, -1, 2, -2];
+
   function updateTimes() {
-    const now = new Date();
-    const h = String(now.getHours()).padStart(2, '0');
-    const m = String(now.getMinutes()).padStart(2, '0');
-    const s = String(now.getSeconds()).padStart(2, '0');
-    const timeStr = h + ':' + m + ':' + s;
-    timeEls.forEach(el => { el.textContent = timeStr; });
+    var now = new Date();
+    timeEls.forEach(function(el, i) {
+      var offset = offsets[i % offsets.length];
+      var d = new Date(now.getTime() + offset * 1000);
+      el.textContent = String(d.getHours()).padStart(2, '0') + ':' +
+                        String(d.getMinutes()).padStart(2, '0') + ':' +
+                        String(d.getSeconds()).padStart(2, '0');
+    });
   }
 
   updateTimes();

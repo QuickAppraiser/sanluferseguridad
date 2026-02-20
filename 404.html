@@ -1,12 +1,24 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="dark">
+<html lang="es" data-lang="es" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex">
   <title>404 - Sanlufer Seguridad</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='4' y1='2' x2='28' y2='32'%3E%3Cstop stop-color='%2322D3EE'/%3E%3Cstop offset='1' stop-color='%2306B6D4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M16 2L4 8v8c0 7.73 5.12 14.95 12 16.73C22.88 30.95 28 23.73 28 16V8L16 2z' fill='%230B1120' stroke='url(%23g)' stroke-width='1.5'/%3E%3Cpath d='M12 16l3 3 5-6' stroke='%2322D3EE' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E">
+  <script>
+    (function(){
+      var t=localStorage.getItem('sanlufer-theme');
+      var l=localStorage.getItem('sanlufer-lang');
+      var d=document.documentElement;
+      if(t==='light'||t==='dark')d.setAttribute('data-theme',t);
+      if(l==='en'||l==='es'){d.setAttribute('data-lang',l);d.setAttribute('lang',l);}
+    })();
+  </script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
+    [data-lang="es"] .lang-en { display: none; }
+    [data-lang="en"] .lang-es { display: none; }
     body {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
       background: #0B1120;
@@ -18,10 +30,15 @@
       text-align: center;
       padding: 2rem;
     }
+    [data-theme="light"] body {
+      background: #F8FAFC;
+      color: #0F172A;
+    }
     .error { max-width: 500px; }
     .error__code {
       font-size: clamp(4rem, 10vw, 8rem);
       font-weight: 700;
+      color: #22D3EE;
       background: linear-gradient(135deg, #22D3EE, #67E8F9);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
@@ -37,6 +54,7 @@
       margin-bottom: 2rem;
       line-height: 1.6;
     }
+    [data-theme="light"] .error__desc { color: #475569; }
     .error__link {
       display: inline-block;
       padding: 0.75rem 2rem;
@@ -56,9 +74,18 @@
 <body>
   <div class="error">
     <div class="error__code">404</div>
-    <h1 class="error__title">Página no encontrada</h1>
-    <p class="error__desc">La página que busca no existe o ha sido movida. Regrese al inicio para encontrar lo que necesita.</p>
-    <a href="/sanluferseguridad/" class="error__link">Volver al inicio</a>
+    <h1 class="error__title">
+      <span class="lang-es">Página no encontrada</span>
+      <span class="lang-en">Page not found</span>
+    </h1>
+    <p class="error__desc">
+      <span class="lang-es">La página que busca no existe o ha sido movida. Regrese al inicio para encontrar lo que necesita.</span>
+      <span class="lang-en">The page you're looking for doesn't exist or has been moved. Go back to the homepage to find what you need.</span>
+    </p>
+    <a href="./" class="error__link">
+      <span class="lang-es">Volver al inicio</span>
+      <span class="lang-en">Back to home</span>
+    </a>
   </div>
 </body>
 </html>

@@ -224,6 +224,39 @@
   border-color: rgba(34, 211, 238, 0.12);
 }
 
+/* Light theme — icon backgrounds */
+[data-theme="light"] .pillar-card__icon {
+  background: rgba(6, 182, 212, 0.1);
+}
+[data-theme="light"] .service-card__icon {
+  background: rgba(6, 182, 212, 0.1);
+}
+[data-theme="light"] .about__feature-icon {
+  background: rgba(6, 182, 212, 0.1);
+}
+[data-theme="light"] .contact__info-icon {
+  background: rgba(6, 182, 212, 0.1);
+}
+[data-theme="light"] .trust-badge__icon {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.12), rgba(6, 182, 212, 0.06));
+}
+[data-theme="light"] .coverage__region-icon {
+  background: rgba(6, 182, 212, 0.1);
+}
+[data-theme="light"] .urgency-counter__icon {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+/* Light theme — navbar logo contrast fix */
+[data-theme="light"] .navbar__logo strong {
+  color: #0891B2;
+}
+
+/* Light theme — emergency bar amber icon fix */
+[data-theme="light"] .emergency-bar__inner svg {
+  color: #D97706;
+}
+
 /* Mobile menu in light mode */
 @media (max-width: 1023px) {
   [data-theme="light"] .navbar__nav--open {
@@ -895,10 +928,15 @@ noscript .noscript-warning {
 
 .hero__title--accent {
   color: var(--color-cyan-400);
-  background: linear-gradient(135deg, var(--color-cyan-400), var(--color-cyan-300));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+}
+@supports (-webkit-background-clip: text) or (background-clip: text) {
+  .hero__title--accent {
+    background: linear-gradient(135deg, var(--color-cyan-400), var(--color-cyan-300));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+  }
 }
 
 /* Typing cursor */
@@ -1887,12 +1925,17 @@ noscript .noscript-warning {
   font-size: 2.5rem;
   font-weight: 700;
   color: var(--color-cyan-400);
-  background: linear-gradient(135deg, var(--color-cyan-400), var(--color-cyan-500));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
   line-height: 1;
   margin-bottom: var(--space-sm);
+}
+@supports (-webkit-background-clip: text) or (background-clip: text) {
+  .process__number {
+    background: linear-gradient(135deg, var(--color-cyan-400), var(--color-cyan-500));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    color: transparent;
+  }
 }
 
 .process__step h3 {
@@ -2433,7 +2476,19 @@ noscript .noscript-warning {
 
 .form-group input::placeholder,
 .form-group textarea::placeholder {
-  color: var(--color-navy-500);
+  color: var(--color-text-secondary);
+}
+
+/* Form validation visual feedback */
+.form-group input:invalid:not(:placeholder-shown),
+.form-group select:invalid:not([value=""]),
+.form-group textarea:invalid:not(:placeholder-shown) {
+  border-color: #EF4444;
+}
+
+.form-group input:valid:not(:placeholder-shown),
+.form-group textarea:valid:not(:placeholder-shown) {
+  border-color: var(--color-success);
 }
 
 .form-group input:focus,
@@ -2587,6 +2642,11 @@ noscript .noscript-warning {
   color: var(--color-text-accent);
   text-decoration: underline;
   text-underline-offset: 2px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  padding: 0;
 }
 .footer__legal-link:hover {
   color: var(--color-cyan-300);
@@ -3614,6 +3674,13 @@ body.has-emergency-bar .hero {
   background: transparent;
   color: var(--color-text-secondary);
   border: 1px solid var(--color-border);
+}
+.cookie-consent__btn--decline:hover {
+  color: var(--color-text-primary);
+  border-color: var(--color-text-secondary);
+}
+.cookie-consent__btn:not(.cookie-consent__btn--decline):hover {
+  background: var(--color-cyan-300);
 }
 [data-theme="light"] .cookie-consent {
   background: rgba(248, 250, 252, 0.95);
