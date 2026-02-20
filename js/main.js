@@ -674,9 +674,9 @@ function initColombiaMap() {
   var lang = document.documentElement.getAttribute('data-lang') || 'es';
 
   var cities = [
-    { name: 'Armenia (Sede Principal)', nameEn: 'Armenia (HQ)', lat: 4.534, lng: -75.681, hq: true },
+    { name: 'Medellín (Sede Principal)', nameEn: 'Medellín (HQ)', lat: 6.251, lng: -75.564, hq: true },
     { name: 'Bogotá', nameEn: 'Bogotá', lat: 4.711, lng: -74.072 },
-    { name: 'Medellín', nameEn: 'Medellín', lat: 6.251, lng: -75.564 },
+    { name: 'Armenia', nameEn: 'Armenia', lat: 4.534, lng: -75.681 },
     { name: 'Cali', nameEn: 'Cali', lat: 3.452, lng: -76.532 },
     { name: 'Pereira', nameEn: 'Pereira', lat: 4.814, lng: -75.696 },
     { name: 'Manizales', nameEn: 'Manizales', lat: 5.070, lng: -75.521 },
