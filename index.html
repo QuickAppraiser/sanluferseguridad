@@ -25,7 +25,7 @@
   <meta property="og:description" content="Expertos en videovigilancia con IA, automatización y cableado estructurado. Servicio nacional: Bogotá, Medellín, Cali, Armenia, Pereira, Barranquilla, Cartagena, Bucaramanga. +15 años. Cotización gratis.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://sanluferseguridad.com">
-  <meta property="og:image" content="https://sanluferseguridad.com/img/og-image.svg">
+  <meta property="og:image" content="https://sanluferseguridad.com/img/hero-bg.jpg">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
   <meta property="og:locale" content="es_CO">
@@ -36,7 +36,7 @@
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Sanlufer Seguridad | Cámaras de Seguridad Colombia">
   <meta name="twitter:description" content="Videovigilancia con IA, automatización y cableado estructurado en toda Colombia. Bogotá, Medellín, Cali, Armenia y más. +15 años, +150 clientes.">
-  <meta name="twitter:image" content="https://sanluferseguridad.com/img/og-image.svg">
+  <meta name="twitter:image" content="https://sanluferseguridad.com/img/hero-bg.jpg">
 
   <!-- Theme Color -->
   <meta name="theme-color" content="#0B1120" media="(prefers-color-scheme: dark)">
@@ -46,6 +46,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='4' y1='2' x2='28' y2='32'%3E%3Cstop stop-color='%2322D3EE'/%3E%3Cstop offset='1' stop-color='%2306B6D4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M16 2L4 8v8c0 7.73 5.12 14.95 12 16.73C22.88 30.95 28 23.73 28 16V8L16 2z' fill='%230B1120' stroke='url(%23g)' stroke-width='1.5'/%3E%3Cpath d='M12 16l3 3 5-6' stroke='%2322D3EE' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E">
+
+  <!-- Preload LCP image -->
+  <link rel="preload" as="image" href="img/hero-bg.jpg">
 
   <!-- Styles -->
   <link rel="stylesheet" href="css/styles.css">
@@ -90,7 +96,6 @@
     ],
     "priceRange": "$$",
     "openingHours": "Mo-Fr 08:00-18:00, Sa 08:00-13:00",
-    "aggregateRating": {"@type": "AggregateRating", "ratingValue": "4.9", "reviewCount": "150"},
     "knowsAbout": ["Videovigilancia", "CCTV", "Cámaras de seguridad", "Control de acceso", "Automatización de edificios", "Cableado estructurado", "Fibra óptica", "Hikvision", "Dahua", "Axis"],
     "hasOfferCatalog": {
       "@type": "OfferCatalog",
@@ -126,6 +131,18 @@
 </head>
 <body>
 
+  <!-- Skip to content for accessibility -->
+  <a href="#hero" class="skip-link">Skip to main content</a>
+
+  <!-- Noscript fallback -->
+  <noscript>
+    <div class="noscript-warning">
+      <span class="lang-es">Este sitio requiere JavaScript para funcionar correctamente.</span>
+      <span class="lang-en">This site requires JavaScript to function properly.</span>
+    </div>
+    <style>#preloader{display:none!important}</style>
+  </noscript>
+
   <!-- ========== PRELOADER ========== -->
   <div id="preloader" class="preloader">
     <div class="preloader__inner">
@@ -148,7 +165,7 @@
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
         +57 320 631 2166
       </a>
-      <button class="emergency-bar__close" id="emergencyBarClose" aria-label="Close">
+      <button class="emergency-bar__close" id="emergencyBarClose" aria-label="Cerrar / Close">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
       </button>
     </div>
@@ -166,7 +183,7 @@
         <span>Sanlufer<strong>Seguridad</strong></span>
       </a>
 
-      <nav class="navbar__nav" id="navMenu">
+      <nav class="navbar__nav" id="navMenu" aria-label="Main navigation">
         <ul class="navbar__list">
           <li><a href="#hero" class="navbar__link active"><span class="lang-es">Inicio</span><span class="lang-en">Home</span></a></li>
           <li><a href="#servicios" class="navbar__link"><span class="lang-es">Servicios</span><span class="lang-en">Services</span></a></li>
@@ -236,20 +253,6 @@
         </a>
       </div>
 
-      <div class="hero__stats">
-        <div class="hero__stat">
-          <span class="hero__stat-number" data-target="150" data-suffix="+">0</span>
-          <span class="hero__stat-label"><span class="lang-es">Clientes Satisfechos</span><span class="lang-en">Happy Clients</span></span>
-        </div>
-        <div class="hero__stat">
-          <span class="hero__stat-number" data-target="15" data-suffix="+">0</span>
-          <span class="hero__stat-label"><span class="lang-es">Años de Experiencia</span><span class="lang-en">Years Experience</span></span>
-        </div>
-        <div class="hero__stat">
-          <span class="hero__stat-number" data-target="500" data-suffix="+">0</span>
-          <span class="hero__stat-label"><span class="lang-es">Proyectos Realizados</span><span class="lang-en">Projects Completed</span></span>
-        </div>
-      </div>
     </div>
 
     <div class="hero__scroll-indicator">
@@ -261,6 +264,7 @@
   <!-- ========== PILLARS ========== -->
   <section id="pilares" class="pillars">
     <div class="container">
+      <h2 class="sr-only"><span class="lang-es">Nuestros Pilares</span><span class="lang-en">Our Pillars</span></h2>
       <div class="pillars__grid">
         <article class="pillar-card glass-card" data-reveal="up" data-delay="0">
           <div class="pillar-card__icon">
@@ -347,9 +351,10 @@
   </section>
 
   <!-- ========== STATS ========== -->
-  <section class="stats">
+  <section id="estadisticas" class="stats">
     <div class="stats__bg-grid"></div>
     <div class="container">
+      <h2 class="sr-only"><span class="lang-es">Estadísticas</span><span class="lang-en">Statistics</span></h2>
       <div class="stats__grid">
         <div class="stat-item" data-reveal="up" data-delay="0">
           <span class="stat-item__number" data-target="150" data-suffix="+">0</span>
@@ -372,16 +377,17 @@
   </section>
 
   <!-- ========== URGENCY COUNTER ========== -->
-  <section class="urgency-counter">
+  <section id="urgencia" class="urgency-counter">
     <div class="container">
+      <h2 class="sr-only"><span class="lang-es">Estadísticas de Criminalidad</span><span class="lang-en">Crime Statistics</span></h2>
       <div class="urgency-counter__content" data-reveal="up">
         <div class="urgency-counter__icon">
           <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
         </div>
         <div class="urgency-counter__text">
           <p class="urgency-counter__stat">
-            <span class="lang-es">En Colombia se registran más de <strong class="urgency-counter__number" id="crimeCounter" data-rate="0.067">0</strong> hurtos por minuto</span>
-            <span class="lang-en">In Colombia, more than <strong class="urgency-counter__number" id="crimeCounterEN" data-rate="0.067">0</strong> thefts occur per minute</span>
+            <span class="lang-es">En Colombia se registran más de <strong class="urgency-counter__number" id="crimeCounter">0</strong> hurtos por minuto</span>
+            <span class="lang-en">In Colombia, more than <strong class="urgency-counter__number" id="crimeCounterEN">0</strong> thefts occur per minute</span>
           </p>
           <p class="urgency-counter__sub">
             <span class="lang-es">No sea parte de esta estadística. Proteja su negocio hoy.</span>
@@ -464,7 +470,7 @@
                     <div class="cam-overlay__detect cam-overlay__detect--area"></div>
                   </div>
                 </div>
-                <div class="dashboard__cam-label"><span class="dashboard__cam-dot dashboard__cam-dot--green"></span> CAM-02 Lobby</div>
+                <div class="dashboard__cam-label"><span class="dashboard__cam-dot dashboard__cam-dot--green"></span> CAM-02 <span class="lang-es">Recepción</span><span class="lang-en">Lobby</span></div>
               </div>
               <div class="dashboard__cam">
                 <div class="dashboard__cam-feed dashboard__cam-feed--3">
@@ -488,7 +494,7 @@
                     <div class="cam-overlay__detect cam-overlay__detect--vehicle"></div>
                   </div>
                 </div>
-                <div class="dashboard__cam-label"><span class="dashboard__cam-dot dashboard__cam-dot--amber"></span> CAM-04 Parking</div>
+                <div class="dashboard__cam-label"><span class="dashboard__cam-dot dashboard__cam-dot--amber"></span> CAM-04 <span class="lang-es">Parqueadero</span><span class="lang-en">Parking</span></div>
               </div>
             </div>
 
@@ -590,10 +596,10 @@
         <h2><span class="lang-es">Evalúa tu nivel de <span class="text-accent">Seguridad</span></span><span class="lang-en">Evaluate your <span class="text-accent">Security</span> level</span></h2>
         <p class="section-desc"><span class="lang-es">Responda 4 preguntas rápidas y descubra qué tan protegido está su negocio.</span><span class="lang-en">Answer 4 quick questions and discover how protected your business is.</span></p>
       </header>
-      <div class="quiz" id="securityQuiz" data-reveal="up">
+      <div class="quiz" id="securityQuiz" data-reveal="up" role="region" aria-label="Security Assessment Quiz">
         <!-- Progress Bar -->
         <div class="quiz__progress">
-          <div class="quiz__progress-bar" id="quizProgress" style="width:25%"></div>
+          <div class="quiz__progress-bar" id="quizProgress" role="progressbar" aria-valuenow="25" aria-valuemin="0" aria-valuemax="100" style="width:25%"></div>
           <span class="quiz__progress-text" id="quizProgressText">1 / 4</span>
         </div>
 
@@ -690,7 +696,7 @@
         </div>
 
         <!-- Result -->
-        <div class="quiz__result" id="quizResult">
+        <div class="quiz__result" id="quizResult" aria-live="polite">
           <div class="quiz__score-gauge">
             <svg class="quiz__gauge" viewBox="0 0 120 120">
               <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(34,211,238,0.1)" stroke-width="8"/>
@@ -730,7 +736,7 @@
       </header>
       <div class="testimonials__grid">
         <article class="testimonial-card glass-card" data-reveal="up" data-delay="0">
-          <div class="testimonial-card__stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <div class="testimonial-card__stars" role="img" aria-label="5 estrellas / 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
           <blockquote><span class="lang-es">"Sanlufer transformó la seguridad de nuestro edificio. El sistema de videovigilancia con analítica de IA nos da una tranquilidad total. Excelente servicio y soporte."</span><span class="lang-en">"Sanlufer transformed our building's security. The AI-powered video surveillance system gives us total peace of mind. Excellent service and support."</span></blockquote>
           <div class="testimonial-card__author">
             <div class="testimonial-card__avatar">CM</div>
@@ -738,7 +744,7 @@
           </div>
         </article>
         <article class="testimonial-card glass-card" data-reveal="up" data-delay="150">
-          <div class="testimonial-card__stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <div class="testimonial-card__stars" role="img" aria-label="5 estrellas / 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
           <blockquote><span class="lang-es">"El cableado estructurado que instalaron es impecable. Nuestra red empresarial nunca ha funcionado mejor. Profesionalismo de principio a fin."</span><span class="lang-en">"The structured cabling they installed is flawless. Our enterprise network has never worked better. Professionalism from start to finish."</span></blockquote>
           <div class="testimonial-card__author">
             <div class="testimonial-card__avatar">AR</div>
@@ -746,7 +752,7 @@
           </div>
         </article>
         <article class="testimonial-card glass-card" data-reveal="up" data-delay="300">
-          <div class="testimonial-card__stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+          <div class="testimonial-card__stars" role="img" aria-label="5 estrellas / 5 stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
           <blockquote><span class="lang-es">"La automatización de nuestro centro comercial redujo costos operativos en un 30%. El control de acceso biométrico es rápido y confiable."</span><span class="lang-en">"Automating our shopping center reduced operational costs by 30%. The biometric access control is fast and reliable."</span></blockquote>
           <div class="testimonial-card__author">
             <div class="testimonial-card__avatar">JL</div>
@@ -802,7 +808,7 @@
   </section>
 
   <!-- ========== TRUST BADGES ========== -->
-  <section class="trust-badges">
+  <section id="confianza" class="trust-badges">
     <div class="container">
       <div class="trust-badges__grid" data-reveal="up">
         <div class="trust-badge">
@@ -995,7 +1001,7 @@
   </section>
 
   <!-- ========== CTA BANNER ========== -->
-  <section class="cta-banner">
+  <section id="cta" class="cta-banner">
     <div class="cta-banner__bg"></div>
     <div class="container">
       <div class="cta-banner__content" data-reveal="up">
@@ -1040,10 +1046,10 @@
             <div><h4><span class="lang-es">Horario</span><span class="lang-en">Hours</span></h4><span class="contact__info-text"><span class="lang-es">Lun-Vie: 8AM-6PM | Sáb: 8AM-1PM</span><span class="lang-en">Mon-Fri: 8AM-6PM | Sat: 8AM-1PM</span></span></div>
           </div>
           <div class="contact__social">
-            <a href="https://facebook.com" target="_blank" rel="noopener" aria-label="Facebook" class="contact__social-link"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
-            <a href="https://instagram.com" target="_blank" rel="noopener" aria-label="Instagram" class="contact__social-link"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
-            <a href="https://tiktok.com" target="_blank" rel="noopener" aria-label="TikTok" class="contact__social-link"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg></a>
-            <a href="https://x.com" target="_blank" rel="noopener" aria-label="X" class="contact__social-link"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+            <a href="https://facebook.com/sanluferseguridad" target="_blank" rel="noopener" aria-label="Sanlufer Seguridad en Facebook" class="contact__social-link"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg></a>
+            <a href="https://instagram.com/sanluferseguridad" target="_blank" rel="noopener" aria-label="Sanlufer Seguridad en Instagram" class="contact__social-link"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg></a>
+            <a href="https://tiktok.com/@sanluferseguridad" target="_blank" rel="noopener" aria-label="Sanlufer Seguridad en TikTok" class="contact__social-link"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg></a>
+            <a href="https://x.com/sanluferseg" target="_blank" rel="noopener" aria-label="Sanlufer Seguridad en X" class="contact__social-link"><svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
           </div>
         </div>
         <form class="contact__form glass-card" data-reveal="right" id="contactForm">
@@ -1064,10 +1070,10 @@
           <div class="form-group">
             <label for="servicio"><span class="lang-es">Servicio de interés</span><span class="lang-en">Service of interest</span></label>
             <select id="servicio" name="servicio">
-              <option value="" class="lang-es">Seleccione un servicio</option>
-              <option value="videovigilancia">Videovigilancia Inteligente</option>
-              <option value="automatizacion">Automatización de Edificios</option>
-              <option value="cableado">Cableado Estructurado</option>
+              <option value="">Seleccione / Select a service</option>
+              <option value="videovigilancia">Videovigilancia / Video Surveillance</option>
+              <option value="automatizacion">Automatización / Building Automation</option>
+              <option value="cableado">Cableado Estructurado / Structured Cabling</option>
               <option value="otro">Otro / Other</option>
             </select>
           </div>
@@ -1121,6 +1127,7 @@
       </div>
       <div class="footer__bottom">
         <p>&copy; 2026 Sanlufer Seguridad. <span class="lang-es">Todos los derechos reservados.</span><span class="lang-en">All rights reserved.</span></p>
+        <a href="#" data-privacy class="footer__legal-link"><span class="lang-es">Política de Privacidad</span><span class="lang-en">Privacy Policy</span></a>
       </div>
     </div>
   </footer>
@@ -1132,9 +1139,41 @@
   </a>
 
   <!-- ========== BACK TO TOP ========== -->
-  <button id="backToTop" class="back-to-top" aria-label="Back to top">
+  <button id="backToTop" class="back-to-top" aria-label="Volver arriba / Back to top">
     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
   </button>
+
+  <!-- ========== PRIVACY POLICY MODAL ========== -->
+  <div class="privacy-modal" id="privacyModal">
+    <div class="privacy-modal__overlay"></div>
+    <div class="privacy-modal__content">
+      <button class="privacy-modal__close" aria-label="Cerrar / Close">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 6L6 18"/><path d="M6 6l12 12"/></svg>
+      </button>
+      <h2><span class="lang-es">Política de Privacidad y Tratamiento de Datos</span><span class="lang-en">Privacy Policy & Data Processing</span></h2>
+      <h3><span class="lang-es">Responsable del Tratamiento</span><span class="lang-en">Data Controller</span></h3>
+      <p><span class="lang-es">Sanlufer Seguridad SAS, con sede en Armenia, Quindío, Colombia. Correo: ernesto.diaz@sanluferseguridad.com. Teléfono: +57 320 631 2166.</span><span class="lang-en">Sanlufer Seguridad SAS, based in Armenia, Quindío, Colombia. Email: ernesto.diaz@sanluferseguridad.com. Phone: +57 320 631 2166.</span></p>
+      <h3><span class="lang-es">Datos Recopilados</span><span class="lang-en">Data Collected</span></h3>
+      <p><span class="lang-es">Recopilamos nombre, correo electrónico, teléfono y mensaje a través del formulario de contacto, únicamente para responder a su solicitud de cotización o información.</span><span class="lang-en">We collect name, email, phone and message through the contact form, solely to respond to your quote or information request.</span></p>
+      <h3><span class="lang-es">Finalidad</span><span class="lang-en">Purpose</span></h3>
+      <p><span class="lang-es">Sus datos serán utilizados exclusivamente para: contactarlo respecto a nuestros servicios, enviar cotizaciones solicitadas y brindar soporte técnico.</span><span class="lang-en">Your data will be used exclusively to: contact you regarding our services, send requested quotes and provide technical support.</span></p>
+      <h3><span class="lang-es">Derechos del Titular (Ley 1581 de 2012)</span><span class="lang-en">Data Subject Rights (Law 1581 of 2012)</span></h3>
+      <p><span class="lang-es">Usted tiene derecho a conocer, actualizar, rectificar y suprimir sus datos personales. Para ejercer estos derechos, escriba a ernesto.diaz@sanluferseguridad.com.</span><span class="lang-en">You have the right to access, update, rectify and delete your personal data. To exercise these rights, write to ernesto.diaz@sanluferseguridad.com.</span></p>
+      <h3><span class="lang-es">Almacenamiento Local</span><span class="lang-en">Local Storage</span></h3>
+      <p><span class="lang-es">Este sitio utiliza almacenamiento local del navegador (localStorage) para recordar sus preferencias de idioma y tema visual. No se almacenan datos personales.</span><span class="lang-en">This site uses browser local storage (localStorage) to remember your language and visual theme preferences. No personal data is stored.</span></p>
+    </div>
+  </div>
+
+  <!-- ========== COOKIE CONSENT ========== -->
+  <div class="cookie-consent" id="cookieConsent">
+    <p class="cookie-consent__text">
+      <span class="lang-es">Este sitio usa almacenamiento local para recordar sus preferencias. Al continuar, acepta nuestra <a href="#" data-privacy>Política de Privacidad</a>.</span>
+      <span class="lang-en">This site uses local storage to remember your preferences. By continuing, you accept our <a href="#" data-privacy>Privacy Policy</a>.</span>
+    </p>
+    <button class="cookie-consent__btn" id="cookieAccept">
+      <span class="lang-es">Aceptar</span><span class="lang-en">Accept</span>
+    </button>
+  </div>
 
   <!-- Scripts -->
   <script src="js/animations.js" defer></script>

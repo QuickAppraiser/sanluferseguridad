@@ -107,7 +107,7 @@ function initNavbar() {
   window.addEventListener('scroll', () => {
     if (!ticking) {
       requestAnimationFrame(() => {
-        navbar.classList.toggle('navbar--scrolled', window.pageYOffset > 80);
+        navbar.classList.toggle('navbar--scrolled', window.scrollY > 80);
         ticking = false;
       });
       ticking = true;
@@ -140,6 +140,16 @@ function initMobileMenu() {
       document.body.classList.remove('no-scroll');
     });
   });
+
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && menu.classList.contains('navbar__nav--open')) {
+      menu.classList.remove('navbar__nav--open');
+      toggle.classList.remove('navbar__toggle--active');
+      toggle.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('no-scroll');
+      toggle.focus();
+    }
+  });
 }
 
 // ==========================================
@@ -156,7 +166,7 @@ function initSmoothScroll() {
         e.preventDefault();
         const headerOffset = 80;
         const elementPosition = target.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+        const offsetPosition = elementPosition + window.scrollY - headerOffset;
 
         window.scrollTo({
           top: offsetPosition,
@@ -179,23 +189,41 @@ function initContactForm() {
 
     const btn = form.querySelector('button[type="submit"]');
     const originalHTML = btn.innerHTML;
-
-    // Show success state
-    btn.innerHTML = `
-      <span class="lang-es">¡Mensaje Enviado!</span>
-      <span class="lang-en">Message Sent!</span>
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-    `;
-    btn.classList.add('btn--success');
     btn.disabled = true;
 
-    // Reset after 3 seconds
-    setTimeout(() => {
-      form.reset();
+    const formData = new FormData(form);
+
+    // Submit via Formspree (replace YOUR_FORM_ID with actual Formspree form ID)
+    fetch('https://formspree.io/f/xyzplaceholder', {
+      method: 'POST',
+      body: formData,
+      headers: { 'Accept': 'application/json' }
+    })
+    .then(response => {
+      if (response.ok) {
+        btn.innerHTML = '<span class="lang-es">¡Mensaje Enviado!</span><span class="lang-en">Message Sent!</span> <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>';
+        btn.classList.add('btn--success');
+        setTimeout(() => {
+          form.reset();
+          btn.innerHTML = originalHTML;
+          btn.classList.remove('btn--success');
+          btn.disabled = false;
+        }, 3000);
+      } else {
+        throw new Error('Form submission failed');
+      }
+    })
+    .catch(() => {
+      // Fallback: open mailto
+      const name = formData.get('nombre') || '';
+      const email = formData.get('email') || '';
+      const msg = formData.get('mensaje') || '';
+      const subject = encodeURIComponent('Cotización desde sitio web - ' + name);
+      const body = encodeURIComponent('Nombre: ' + name + '\nEmail: ' + email + '\nTeléfono: ' + (formData.get('telefono') || '') + '\nServicio: ' + (formData.get('servicio') || '') + '\n\nMensaje:\n' + msg);
+      window.location.href = 'mailto:ernesto.diaz@sanluferseguridad.com?subject=' + subject + '&body=' + body;
       btn.innerHTML = originalHTML;
-      btn.classList.remove('btn--success');
       btn.disabled = false;
-    }, 3000);
+    });
   });
 }
 
@@ -211,7 +239,7 @@ function initBackToTop() {
   window.addEventListener('scroll', () => {
     if (!ticking) {
       requestAnimationFrame(() => {
-        btn.classList.toggle('visible', window.pageYOffset > 500);
+        btn.classList.toggle('visible', window.scrollY > 500);
         ticking = false;
       });
       ticking = true;
@@ -232,7 +260,7 @@ function initBackToTop() {
 function initEmergencyBar() {
   const bar = document.getElementById('emergencyBar');
   const closeBtn = document.getElementById('emergencyBarClose');
-  if (!bar) return;
+  if (!bar || !closeBtn) return;
 
   // Check if previously dismissed
   const dismissed = sessionStorage.getItem('sanlufer-emergency-dismissed');
@@ -259,7 +287,6 @@ function initUrgencyCounter() {
   const counterEN = document.getElementById('crimeCounterEN');
   if (!counter) return;
 
-  const rate = 1.12; // per minute
   let count = Math.floor(Math.random() * 3) + 1; // Start with small random number
 
   function updateCounters(value) {
@@ -308,6 +335,8 @@ function initSecurityQuiz() {
   const totalSteps = steps.length;
   let currentStep = 1;
   let totalScore = 0;
+
+  if (!progressBar || !progressText || !result) return;
 
   // Handle option clicks
   quiz.addEventListener('click', (e) => {
@@ -429,6 +458,76 @@ function initSecurityQuiz() {
 }
 
 // ==========================================
+// LIVE CAMERA DASHBOARD TIMESTAMPS
+// ==========================================
+function initDashboardTimestamps() {
+  const timeEls = document.querySelectorAll('.cam-overlay__time');
+  if (!timeEls.length) return;
+
+  function updateTimes() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    const s = String(now.getSeconds()).padStart(2, '0');
+    const timeStr = h + ':' + m + ':' + s;
+    timeEls.forEach(el => { el.textContent = timeStr; });
+  }
+
+  updateTimes();
+  setInterval(updateTimes, 1000);
+}
+
+// ==========================================
+// COOKIE CONSENT
+// ==========================================
+function initCookieConsent() {
+  const consent = document.getElementById('cookieConsent');
+  if (!consent) return;
+
+  if (localStorage.getItem('sanlufer-cookies-accepted')) return;
+
+  setTimeout(() => { consent.classList.add('visible'); }, 2000);
+
+  const btn = document.getElementById('cookieAccept');
+  if (btn) {
+    btn.addEventListener('click', () => {
+      localStorage.setItem('sanlufer-cookies-accepted', '1');
+      consent.classList.remove('visible');
+    });
+  }
+}
+
+// ==========================================
+// PRIVACY MODAL
+// ==========================================
+function initPrivacyModal() {
+  const modal = document.getElementById('privacyModal');
+  if (!modal) return;
+
+  document.querySelectorAll('[data-privacy]').forEach(link => {
+    link.addEventListener('click', (e) => {
+      e.preventDefault();
+      modal.classList.add('active');
+      document.body.classList.add('no-scroll');
+    });
+  });
+
+  const closeBtn = modal.querySelector('.privacy-modal__close');
+  const overlay = modal.querySelector('.privacy-modal__overlay');
+
+  function closeModal() {
+    modal.classList.remove('active');
+    document.body.classList.remove('no-scroll');
+  }
+
+  if (closeBtn) closeBtn.addEventListener('click', closeModal);
+  if (overlay) overlay.addEventListener('click', closeModal);
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && modal.classList.contains('active')) closeModal();
+  });
+}
+
+// ==========================================
 // INITIALIZE EVERYTHING
 // ==========================================
 document.addEventListener('DOMContentLoaded', () => {
@@ -442,4 +541,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initEmergencyBar();
   initUrgencyCounter();
   initSecurityQuiz();
+  initDashboardTimestamps();
+  initCookieConsent();
+  initPrivacyModal();
 });

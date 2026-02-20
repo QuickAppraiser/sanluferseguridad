@@ -155,6 +155,7 @@ function initTypingEffect() {
     words = currentLang === 'en' ? wordsEN : wordsES;
     // Reset typing
     if (timeout) clearTimeout(timeout);
+    wordIndex = 0;
     charIndex = 0;
     isDeleting = false;
     el.textContent = '';
